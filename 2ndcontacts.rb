@@ -20,16 +20,17 @@ b.text_fields[1].set 'hereweare'
 b.buttons.first.click
 
 # b.goto 'https://www.linkedin.com/vsearch/p?title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_N=S&f_CS=2,3&rsid=4120029691447840224428&orig=MDYS'
-b.goto 'https://www.linkedin.com/vsearch/p?title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=2,3&rsid=4120029691447848942398&orig=MDYS&page_num=22&pt=people&openFacets=N,G,CC,CS&f_N=S'
+b.goto 'https://www.linkedin.com/vsearch/p?title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=2,3&rsid=4120029691447851870403&orig=MDYS&page_num=41&pt=people&f_N=S&openFacets=N,G,CC,CS'
 sleep 5
 
 base = load_base
 page = b.element(css: '.active').text.to_i
 begin
+  brek if page > 90
   url = b.url
   p b.element(css: '.active').text
   p 'waiting'
-  Watir::Wait.until {   b.element(css: '.active').text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
+  Watir::Wait.until {   b.element(css: '.active').exist? && b.element(css: '.active').text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
   p [b.element(css: '.active').text, page]
   b.elements(css: '.result').to_a.each_index do |i|
 
