@@ -26,9 +26,11 @@ links_to_connections.each do |link|
     locations = b.elements(css: '.separator bdi').map(&:text)                    
     industries = b.elements(css: '.separator~ dd').map(&:text)
     
+    contact = b.elements(css: 'h3.title a').map(&:text)
+    
     CSV.open("./base.csv", "a") do |csv|
       names.each_index do |i|
-        row = [names[i], positions[i], locations[i], industries[i]]
+        row = [contact, names[i], positions[i], locations[i], industries[i]]
         p row
         csv << row
       end
