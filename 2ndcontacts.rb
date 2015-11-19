@@ -20,13 +20,13 @@ b.text_fields[1].set 'hereweare'
 b.buttons.first.click
 
 # b.goto 'https://www.linkedin.com/vsearch/p?title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_N=S&f_CS=2,3&rsid=4120029691447840224428&orig=MDYS'
-b.goto 'https://www.linkedin.com/vsearch/p?title=CIO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=2,3&rsid=4120029691447855371346&orig=MDYS&page_num=6&pt=people&openFacets=N,G,CC,CS&f_N=S'
+b.goto 'https://www.linkedin.com/vsearch/p?title=vp&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=2,3&rsid=4120029691447938289831&orig=MDYS&page_num=100&pt=people&f_N=S&openFacets=N,G,CC,CS'
 sleep 5
 
 base = load_base
 page = b.element(css: '.active').text.to_i
-begin
-  break if page > 140
+while b.element(css: '.next .page-link').exists?
+  break if page > 100
   url = b.url
   p 'waiting'
   Watir::Wait.until {   b.element(css: '.active').exist? && b.element(css: '.active').text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
@@ -67,4 +67,4 @@ begin
   page = page + 1
   b.element(css: '.next .page-link').click
   
-end while b.element(css: '.next .page-link').exists?
+end 
