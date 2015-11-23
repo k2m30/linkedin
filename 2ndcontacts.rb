@@ -12,6 +12,15 @@ def add_item_to_base(file = './2ndconnections.csv', person)
   end
 end
 
+def merge_bases(file1 = './2ndconnections.csv', file2 = './2ndconnections_alex.csv')
+  base1 = load_base file1
+  base2 = load_base file2
+  
+  items_to_add = base2 - base1
+  
+  items_to_add.each {|item| add_item_to_base file1, item}
+end
+
 b = Watir::Browser.new :chrome
 b.goto 'linkedin.com'
 
@@ -20,7 +29,7 @@ b.text_fields[1].set 'hereweare'
 b.buttons.first.click
 
 # b.goto 'https://www.linkedin.com/vsearch/p?title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_N=S&f_CS=2,3&rsid=4120029691447840224428&orig=MDYS'
-b.goto 'https://www.linkedin.com/vsearch/p?title=vp&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=2,3&rsid=4120029691447938289831&orig=MDYS&page_num=100&pt=people&f_N=S&openFacets=N,G,CC,CS'
+b.goto 'https://www.linkedin.com/vsearch/p?title=managing%20director&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=3&rsid=4120029691448025268989&orig=FCTD&f_I=43,96&page_num=61&pt=people&f_N=S&openFacets=N,G,CC,I,CS'
 sleep 5
 
 base = load_base
