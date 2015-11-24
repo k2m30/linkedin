@@ -1,10 +1,12 @@
 require 'csv'
 require 'pp'
+require 'yaml'
 require 'watir'
 require 'watir-webdriver'
+require './user'
 
 def load_base(file = './2ndconnections.csv')
-  return CSV.read(file)
+  CSV.read(file)
 end
 
 def add_item_to_base(file = './2ndconnections.csv', person)
@@ -22,16 +24,31 @@ def merge_bases(file1 = './2ndconnections.csv', file2 = './2ndconnections_alex.c
   items_to_add.each { |item| add_item_to_base file1, item }
 end
 
-# switches = ['--proxy-server=88.12.44.205:3128']
+def load_users(file='users.yml')
+  users = File.open(file) { |yf| YAML::load(yf) }
+  users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'], users[key]['proxy'], users[key]['url']) }
+end
 
-def crawl(url)
+def save_users(file='users.yml', users)
+  hash = {}
+  users.each do |user|
+    hash.merge! user.to_hash
+  end
 
-  prefs = {:profile => {:managed_default_content_settings => {:images => 2}}}
-  b = Watir::Browser.new :chrome, :prefs => prefs
+  File.open(file, 'w+') do |f|
+    f.puts hash.to_yaml
+  end
+end
+
+def crawl(url, user)
+
+  prefs = {profile: {managed_default_content_settings: {images: 2}}}
+  switches = ["--proxy-server=#{user.proxy}"]
+  b = Watir::Browser.new :chrome, prefs: prefs, switches: switches
   b.goto 'linkedin.com'
 
-  b.text_fields.first.set '1m@tut.by'
-  b.text_fields[1].set 'hereweare'
+  b.text_fields.first.set user.login
+  b.text_fields[1].set user.password
   b.buttons.first.click
 
   b.goto url
@@ -97,10 +114,26 @@ def crawl(url)
   false
 end
 
+users = load_users
 
-url = 'https://www.linkedin.com/vsearch/p?title=managing%20director&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_CS=4&rsid=4120029691448361298875&orig=FCTD&pt=people&f_G=gb%3A0&f_L=en&f_N=S&openFacets=N,G,CC,I,L,CS'
+threads = []
 
-10.times do
-  url = crawl(url)
+users.each do |user|
+  threads << Thread.new do
+    url = user.url
+    10.times do
+      if url
+        url = crawl(url, user)
+        user.url = url
+      end
+    end
+  end
 end
+
+threads.each do |thread|
+  thread.join
+end
+
+save_users users
+
 
