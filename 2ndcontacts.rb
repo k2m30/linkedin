@@ -108,6 +108,7 @@ def crawl(url, user)
     pp e.backtrace[0..4]
     url = b.url
     b.close
+    return false if page == 100
     return url
   end
 
