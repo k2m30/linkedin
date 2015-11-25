@@ -10,9 +10,7 @@ def load_base(file = './2ndconnections.csv')
 end
 
 def add_item_to_base(file = './2ndconnections.csv', person)
-  CSV.open(file, "a") do |csv|
-    csv << person
-  end
+  CSV.open(file, 'a') {|csv| csv << person}
 end
 
 def merge_bases(file1 = './2ndconnections.csv', file2 = './2ndconnections_alex.csv')
