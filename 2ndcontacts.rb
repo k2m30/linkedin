@@ -79,10 +79,11 @@ def crawl(url, user)
         location = location.exist? ? location.text : ''
 
         person = [name, position, industry, location]
-        p person
+
         unless base.include? person
           button = item.element(css: '.primary-action-button')
           button.click
+          p person
           sleep(rand(0.9..3.2))
 
           succeed = b.url == url
@@ -133,6 +134,6 @@ threads.each do |thread|
   thread.join
 end
 
-save_users users
+# save_users users
 
 
