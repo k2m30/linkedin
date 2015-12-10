@@ -5,7 +5,7 @@ class Linkedin
   require 'watir'
   require 'watir-webdriver'
 
-  @base_address = 'http://localhost:3000'
+  @base_address = 'http://136.243.99.208:3000'
 
   def self.load_users(file='./config/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
