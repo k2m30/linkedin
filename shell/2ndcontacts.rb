@@ -6,7 +6,7 @@ require 'watir-webdriver'
 require './user'
 
 def load_base(file = './2ndconnections.csv')
-  CSV.read(file)
+  CSV.read(file).uniq!
 end
 
 def add_item_to_base(file = './2ndconnections.csv', person)
@@ -53,6 +53,9 @@ def crawl(url, user)
   sleep 5
 
   base = load_base
+  p ['initial size', base.size ]
+  minus_words = %w[marketing sales soft hr recruitment assistant]
+
   active_link_selector = 'li.active'
   next_page_link_selector = 'li.next>a.page-link'
 
@@ -81,6 +84,7 @@ def crawl(url, user)
         person = [name, position, industry, location]
 
         unless base.include? person
+          next if minus_words.map{|a| position.include? a}.include? true
           button = item.element(css: '.primary-action-button')
           button.click
           p person
@@ -133,6 +137,9 @@ end
 threads.each do |thread|
   thread.join
 end
+
+base = load_base
+p ['final size', base.size ]
 
 # save_users users
 
