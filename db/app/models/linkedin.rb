@@ -5,7 +5,7 @@ class Linkedin
   require 'watir'
   require 'watir-webdriver'
 
-  @base_address = 'http://136.243.99.208:3000'
+  @base_address = 'http://176.31.71.89:3000'
 
   def self.load_users(file='./config/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
@@ -49,6 +49,7 @@ class Linkedin
       while b.element(css: next_page_link_selector).exists?
         url = b.url
         p 'waiting'
+        p url
         b.element(css: active_link_selector).wait_until_present
         Watir::Wait.until { b.element(css: active_link_selector).exist? && b.element(css: active_link_selector).text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
         p [b.element(css: active_link_selector).text, page]
@@ -73,12 +74,12 @@ class Linkedin
           uri.query = URI.encode_www_form person
           result = Net::HTTP.get(uri) == 'true'
 
-          p [person, result]
+          p [person[:name], result]
           unless result
             next if minus_words.map{|a| position.include? a}.include? true
             button = item.element(css: '.primary-action-button')
             button.click
-            p person
+            # p person
             sleep(rand(0.9..3.2))
 
             succeed = b.url == url
