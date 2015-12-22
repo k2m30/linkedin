@@ -1,6 +1,8 @@
 class PersonsController < ApplicationController
-  def index
-
+  def export
+    respond_to do |format|
+      format.csv {send_data Person.export_to_csv}
+    end
   end
 
   def person_exists
