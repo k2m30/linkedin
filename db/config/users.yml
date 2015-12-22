@@ -3,7 +3,8 @@ name1:
   l: 1m@tut.by
   p: hereweare
   proxy:
-  url: https://www.linkedin.com/vsearch/p?keywords=automotive&title=owner&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_G=gb%3A4573&rsid=4120029691450429209261&orig=ADVS&page_num=9&pt=people&openFacets=N,G,CC&f_N=S
+  url: https://www.linkedin.com/vsearch/p?keywords=Real%20Estate&title=CEO&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_G=gb%3A4573&rsid=4120029691450777102513&orig=ADVS&page_num=18&pt=people&f_N=S&openFacets=N,G,CC
+
 
 #https://www.linkedin.com/vsearch/p?title=president&postalCode=rm1&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&distance=25&f_G=gb%3A4573&f_L=en&f_CS=2,3&rsid=4120029691449145148925&orig=FCTD&openFacets=N,G,CC,I,L,CS&f_N=S
 #https://www.linkedin.com/vsearch/p?title=founder&postalCode=W8&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_N=S&f_G=gb%3A4573&f_L=en&rsid=1827625041449058292267&orig=ADVS

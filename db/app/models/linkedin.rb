@@ -65,7 +65,14 @@ class Linkedin
           position = position.exist? ? position.text : ''
           industry = industry.exist? ? industry.text : ''
           location = location.exist? ? location.text : ''
-          linkedin_id = URI(item.as(css: 'a.primary-action-button.label').first.href).query.split('&').select{|a| a.include?('key=')}.first.gsub('key=','').to_i
+
+          begin
+            linkedin_id = URI(item.as(css: 'a.primary-action-button.label').first.href).query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
+          rescue => e
+            p e.message
+            pp e.backtrace[0..4]
+            linkedin_id = nil
+          end
 
           person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id}
 
@@ -76,7 +83,7 @@ class Linkedin
 
           p [person[:name], result]
           unless result
-            next if minus_words.map{|a| position.include? a}.include? true
+            next if minus_words.map{|a| position.downcase.include? a}.include? true
             button = item.element(css: '.primary-action-button')
             button.click
             # p person
