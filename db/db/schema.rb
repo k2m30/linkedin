@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151209113235) do
+ActiveRecord::Schema.define(version: 20151222151708) do
 
   create_table "people", force: :cascade do |t|
     t.string  "name"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20151209113235) do
     t.string  "industry"
     t.string  "location"
     t.integer "linkedin_id"
+    t.string  "email"
   end
 
   add_index "people", ["industry"], name: "index_people_on_industry"

@@ -1,13 +1,13 @@
 require 'csv'
 
 class Person < ActiveRecord::Base
-  def self.import(file = '../2ndconnections.csv')
-    records = CSV.read(file)
-
-    records.uniq.each do |record|
-      Person.create(name: record[0], position: record[1], industry: record[2], location: record[3])
-    end
-  end
+  # def self.import(file = '../2ndconnections.csv')
+  #   records = CSV.read(file)
+  #
+  #   records.uniq.each do |record|
+  #     Person.create(name: record[0], position: record[1], industry: record[2], location: record[3])
+  #   end
+  # end
 
   def self.add_user(params)
     Person.create(name: params[:name], position: params[:position], industry: params[:industry],
@@ -43,5 +43,33 @@ class Person < ActiveRecord::Base
         csv << person.attributes.values_at(*column_names)
       end
     end
+  end
+
+  def self.import(file)
+    begin
+      CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
+        name = row['First Name'] << ' ' << row['Last Name']
+        position = row['Job Title'] << ' at ' << row['Company']
+        email = row['E-mail Address']
+
+        people = Person.where(name: name)
+        if people.empty?
+          Person.create(name: name, position: position, email: email)
+          p ['create', name]
+        else
+          people.each do |person|
+            if person.position.include?(row['Job Title']) && person.position.include?(row['Company'])
+              person.update(email: email) if person.email.nil?
+              p ['update', person]
+            end
+          end
+          # Frank		Garcia		twotonlogistics@gmail.com	Two Ton Logistics Ltd		Owner/Managing Director
+          # Frank Garcia	Owner/Director at Two Ton Logistics Ltd	Transportation/Trucking/Railroad	London, United Kingdom	27726532
+        end
+      end
+    rescue CSV::MalformedCSVError
+      p ['end']
+    end
+
   end
 end

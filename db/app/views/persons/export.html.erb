@@ -1,0 +1,9 @@
+<table>
+  <% @people.each do |person| %>
+    <tr>
+      <td><%= person.name %></td>
+      <td><%= person.position %></td>
+      <td><%= person.email %></td>
+    </tr>
+  <% end %>
+</table>
