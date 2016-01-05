@@ -35,6 +35,7 @@ class Person < ActiveRecord::Base
       person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
       response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'
 
+      next if response.person.nil?
       emails = response.person.emails.map(&:address)
       emails.delete_if{|e| e.include? 'facebook'}
 
