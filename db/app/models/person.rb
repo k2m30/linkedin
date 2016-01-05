@@ -30,6 +30,8 @@ class Person < ActiveRecord::Base
       next if p.name.split(' ').size != 2
       first, last = p.name.split(' ')
 
+      next if last.include?('.')
+
       person = Pipl::Person.new
       person.add_field Pipl::Name.new(first: first, last: last)
       person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
