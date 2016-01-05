@@ -14,6 +14,42 @@ class Person < ActiveRecord::Base
                   location: params[:location], linkedin_id: params[:linkedin_id])
   end
 
+  def self.add_email_to_person(linkedin_id, email)
+    return nil if linkedin_id.nil? or email.nil?
+    person = Person.find_by(linkedin_id: linkedin_id)
+    person.update(email: email) unless person.nil?
+    person
+  end
+
+  def self.pipl_research
+    require 'pipl'
+
+    people = Person.where.not(linkedin_id: nil).where(email: nil).limit(2)
+    people.each do |p|
+      p p
+      next if p.name.split(' ').size != 2
+      first, last = p.name.split(' ')
+
+      person = Pipl::Person.new
+      person.add_field Pipl::Name.new(first: first, last: last)
+      person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
+      response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'
+
+      emails = response.person.emails.map(&:address)
+      emails.delete_if{|e| e.include? 'facebook'}
+
+      # byebug
+      notes = response.person.to_hash.to_s
+      if emails.size > 1
+        email = emails.shift
+        notes << "\n" << emails.join(' ')
+      else
+        email = emails.first
+      end
+      p.update(email: email, notes: notes)
+    end
+  end
+
   def self.exists?(params)
     search_hash = {}
     search_hash[:name] = params[:name] if params[:name].present?

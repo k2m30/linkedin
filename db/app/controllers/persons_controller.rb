@@ -12,6 +12,11 @@ class PersonsController < ApplicationController
     redirect_to root_path, notice: 'Imported'
   end
 
+  def add_email_to_person
+    person = Person.add_email_to_person(params[:linkedin_id], params[:email])
+    render text: person
+  end
+
   def person_exists
     render text: Person.exists?(params)
   end
