@@ -2,8 +2,11 @@
   <% @people.each do |person| %>
     <tr>
       <td><%= person.name %></td>
-      <td><%= person.position %></td>
       <td><%= person.email %></td>
+      <td><%= person.position %></td>
+      <td><%= person.industry %></td>
+      <td><%= person.location %></td>
+      <td><%= person.linkedin_id %></td>
     </tr>
   <% end %>
 </table>

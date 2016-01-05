@@ -57,10 +57,14 @@ class Person < ActiveRecord::Base
           Person.create(name: name, position: position, email: email)
           p ['create', name]
         else
-          people.each do |person|
-            if person.position.include?(row['Job Title']) && person.position.include?(row['Company'])
-              person.update(email: email) if person.email.nil?
-              p ['update', person]
+          if people.size == 1
+            people.first.update(email: email) if people.first.email.nil?
+          else
+            people.each do |person|
+              if person.position.include?(row['Job Title']) && person.position.include?(row['Company'])
+                person.update(email: email) if person.email.nil?
+                p ['update', person]
+              end
             end
           end
           # Frank		Garcia		twotonlogistics@gmail.com	Two Ton Logistics Ltd		Owner/Managing Director
