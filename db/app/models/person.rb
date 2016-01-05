@@ -31,6 +31,7 @@ class Person < ActiveRecord::Base
       first, last = p.name.split(' ')
 
       next if last.include?('.')
+      next if last.size == 1
 
       person = Pipl::Person.new
       person.add_field Pipl::Name.new(first: first, last: last)
