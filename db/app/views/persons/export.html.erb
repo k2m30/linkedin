@@ -1,13 +1,17 @@
 <table>
   <% @people.each do |person| %>
-    <tr>
-      <td><%= person.name %></td>
-      <td><%= person.email %></td>
-      <td><%= person.position %></td>
-      <td><%= person.industry %></td>
-      <td><%= person.location %></td>
-      <td><%= person.linkedin_id %></td>
-      <td><%= person.notes %></td>
-    </tr>
+      <tr>
+        <td><%= person.name %></td>
+        <td><%= person.email %></td>
+        <td><%= person.position %></td>
+        <td><%= person.industry %></td>
+        <td><%= person.location %></td>
+        <td><%= person.linkedin_id %></td>
+        <td>
+          <% unless person.notes.nil? %>
+              <%= person.notes.scan(/(.+):(.+)\n/).to_h %>
+          <% end %>
+        </td>
+      </tr>
   <% end %>
 </table>

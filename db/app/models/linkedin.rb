@@ -26,16 +26,17 @@ class Linkedin
   def self.crawl(url, user)
 
     prefs = {profile: {managed_default_content_settings: {images: 2}}}
-    switches = ["--proxy-server=#{user.proxy}"]
+    switches = %W[--user-data-dir=/Users/#{ENV['USER']}/Library/Application\ Support/Google/Chrome/ --proxy-server=#{user.proxy}]
     b = Watir::Browser.new :chrome, prefs: prefs, switches: switches
+
     b.goto 'linkedin.com'
-
-    b.text_fields.first.set user.login
-    b.text_fields[1].set user.password
-    b.buttons.first.click
-
-    b.goto url
+    if b.text.include?('Forgot password?')
+      b.text_fields.first.set user.login
+      b.text_fields[1].set user.password
+      b.buttons.first.click
+    end
     sleep 5
+    b.goto url
 
     p ['initial size', Net::HTTP.get(URI("#{@base_address}/count"))]
     minus_words = %w(marketing sales soft hr recruitment assistant)
@@ -83,7 +84,7 @@ class Linkedin
 
           p [person[:name], result]
           unless result
-            next if minus_words.map{|a| position.downcase.include? a}.include? true
+            next if minus_words.map { |a| position.downcase.include? a }.include? true
             button = item.element(css: '.primary-action-button')
             button.click
             # p person

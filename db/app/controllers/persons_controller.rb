@@ -1,8 +1,10 @@
 class PersonsController < ApplicationController
   def export
-    @people = Person.all
+
     respond_to do |format|
-      format.html# {render text: Person.export_to_csv}
+      format.html do
+        @people = Person.all.limit(100)
+      end
       format.csv {send_data Person.export_to_csv}
     end
   end
