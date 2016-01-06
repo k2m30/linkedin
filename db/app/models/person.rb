@@ -30,8 +30,8 @@ class Person < ActiveRecord::Base
       next if p.name.split(' ').size != 2
       first, last = p.name.split(' ')
 
-      next if last.include?('.')
-      next if last.size == 1
+      next if last.include?('.') or first.include?('.')
+      next if last.size == 1 or first.size == 1
 
       person = Pipl::Person.new
       person.add_field Pipl::Name.new(first: first, last: last)
