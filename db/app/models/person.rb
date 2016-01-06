@@ -24,7 +24,7 @@ class Person < ActiveRecord::Base
   def self.pipl_research(n=100)
     require 'pipl'
 
-    people = Person.where.not(linkedin_id: nil).where(email: nil).limit(n)
+    people = Person.where.not(linkedin_id: nil).where.not(notes: nil).where(email: nil).limit(n)
     people.each do |p|
       p p
       next if p.name.split(' ').size != 2
