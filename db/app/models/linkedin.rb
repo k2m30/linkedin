@@ -9,7 +9,8 @@ class Linkedin
 
   def self.load_users(file='./config/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
-    users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'], users[key]['proxy'], users[key]['url']) }
+    users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'],
+                                    users[key]['proxy'], users[key]['dir'], users[key]['url']) }
   end
 
   def self.save_users(file='users.yml', users)
@@ -26,7 +27,7 @@ class Linkedin
   def self.crawl(url, user)
 
     prefs = {profile: {managed_default_content_settings: {images: 2}}}
-    switches = %W[--user-data-dir=/Users/#{ENV['USER']}/Library/Application\ Support/Google/Chrome/ --proxy-server=#{user.proxy}]
+    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{user.dir} --proxy-server=#{user.proxy}]
     b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
 
     b.goto 'linkedin.com'
@@ -89,18 +90,18 @@ class Linkedin
             button = item.element(css: 'a.primary-action-button')
             button.click
             # p person
-            sleep(rand(0.9..3.2))
+            sleep(rand(0.2..2.2))
 
             succeed = b.url == url
 
             unless succeed
-              sleep(rand(0.9..3.2))
+              sleep(rand(0.2..2.2))
               b.goto url
             end
           end
         end
 
-        sleep(rand(0.9..3.2))
+        sleep(rand(0.2..2.2))
         page = page + 1
         Watir::Wait.until { b.element(css: next_page_link_selector).exist? }
         b.element(css: next_page_link_selector).click
@@ -110,7 +111,7 @@ class Linkedin
       pp e.backtrace[0..4]
       url = b.url
       text = b.text
-      b.close
+      b.close unless b.text.include?('Security Verification')
       return false unless text.include?('Next >') #'Security Verification      We need to verify you're not a robot! Please complete this security check:'
       return url
     end

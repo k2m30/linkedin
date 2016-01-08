@@ -3,7 +3,15 @@ name1:
   l: 1m@tut.by
   p: hereweare
   proxy:
-  url: https://www.linkedin.com/vsearch/p?keywords=agent&title=Managing%20director&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691452167560983&orig=MDYS&page_num=83&pt=people&openFacets=N,G,CC&f_N=S
+  dir: Mikhail_Chuprynski
+  url: https://www.linkedin.com/vsearch/p?keywords=real%20estate%20london&title=Managing%20director&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&f_N=S&rsid=4120029691452252879164&orig=MDYS
+
+name2:
+  l: hilton.joel@yahoo.com
+  p: Pqr35790
+  proxy:
+  dir: Joel_Hilton
+  url: https://www.linkedin.com/vsearch/p?keywords=financial%20ombudsman%20service&title=CEO&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&f_N=S&rsid=4616588961451726742981&orig=ADVS
 
 #https://www.linkedin.com/vsearch/p?title=president&postalCode=rm1&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&distance=25&f_G=gb%3A4573&f_L=en&f_CS=2,3&rsid=4120029691449145148925&orig=FCTD&openFacets=N,G,CC,I,L,CS&f_N=S
 #https://www.linkedin.com/vsearch/p?title=founder&postalCode=W8&openAdvancedForm=true&titleScope=CP&locationType=I&countryCode=gb&f_N=S&f_G=gb%3A4573&f_L=en&rsid=1827625041449058292267&orig=ADVS
