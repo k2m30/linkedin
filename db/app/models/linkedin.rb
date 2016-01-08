@@ -27,10 +27,11 @@ class Linkedin
 
     prefs = {profile: {managed_default_content_settings: {images: 2}}}
     switches = %W[--user-data-dir=/Users/#{ENV['USER']}/Library/Application\ Support/Google/Chrome/ --proxy-server=#{user.proxy}]
-    b = Watir::Browser.new :chrome, prefs: prefs, switches: switches
+    b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
 
     b.goto 'linkedin.com'
     if b.text.include?('Forgot password?')
+      sleep 4
       b.text_fields.first.set user.login
       b.text_fields[1].set user.password
       b.buttons.first.click
@@ -38,11 +39,11 @@ class Linkedin
     sleep 5
     b.goto url
 
-    p ['initial size', Net::HTTP.get(URI("#{@base_address}/count"))]
     minus_words = %w(marketing sales soft hr recruitment assistant)
 
     active_link_selector = 'li.active'
     next_page_link_selector = 'li.next>a.page-link'
+    person_selector = '.people.result'
 
     page = b.element(css: active_link_selector).text.to_i
 
@@ -54,9 +55,9 @@ class Linkedin
         b.element(css: active_link_selector).wait_until_present
         Watir::Wait.until { b.element(css: active_link_selector).exist? && b.element(css: active_link_selector).text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
         p [b.element(css: active_link_selector).text, page]
-        b.elements(css: '.result').to_a.each_index do |i|
+        b.elements(css: person_selector).to_a.each_index do |i|
 
-          item = b.elements(css: '.result')[i]
+          item = b.elements(css: person_selector)[i]
           name = item.element(css: '.main-headline')
           position = item.element(css: '.bd .description')
           industry = item.element(css: '.separator~ dd')
@@ -85,7 +86,7 @@ class Linkedin
           p [person[:name], result]
           unless result
             next if minus_words.map { |a| position.downcase.include? a }.include? true
-            button = item.element(css: '.primary-action-button')
+            button = item.element(css: 'a.primary-action-button')
             button.click
             # p person
             sleep(rand(0.9..3.2))
@@ -108,8 +109,9 @@ class Linkedin
       p e.message
       pp e.backtrace[0..4]
       url = b.url
+      text = b.text
       b.close
-      return false if page == 100
+      return false unless text.include?('Next >') #'Security Verification      We need to verify you're not a robot! Please complete this security check:'
       return url
     end
 
@@ -120,6 +122,8 @@ class Linkedin
     users = load_users
 
     threads = []
+    initial_size = Net::HTTP.get(URI("#{@base_address}/count"))
+    p ['initial size', initial_size]
 
     users.each do |user|
       threads << Thread.new do
@@ -137,6 +141,8 @@ class Linkedin
       thread.join
     end
 
-    p ['final size', Net::HTTP.get(URI("#{@base_address}/count"))]
+    final_size = Net::HTTP.get(URI("#{@base_address}/count"))
+    p ['final size', final_size]
+    p "#{final_size.to_i-initial_size.to_i} invitations sent"
   end
 end

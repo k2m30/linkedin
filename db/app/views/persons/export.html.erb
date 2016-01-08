@@ -8,9 +8,17 @@
         <td><%= person.location %></td>
         <td><%= person.linkedin_id %></td>
         <td>
-          <% unless person.notes.nil? %>
-              <%= person.notes.scan(/(.+):(.+)\n/).to_h %>
-          <% end %>
+          <table>
+            <% notes_hash = eval person.notes[/{.+}/] %>
+            <% unless person.notes.nil? %>
+                <%- notes_hash.keys.each do |key| %>
+                    <tr>
+                      <td><%= key %></td>
+                      <td><%= notes_hash[key] %></td>
+                    </tr>
+                <% end %>
+            <% end %>
+          </table>
         </td>
       </tr>
   <% end %>

@@ -3,7 +3,7 @@ class PersonsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @people = Person.all.limit(100)
+        @people = Person.where.not(notes: nil).limit(10)
       end
       format.csv {send_data Person.export_to_csv}
     end
