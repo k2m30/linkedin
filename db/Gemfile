@@ -27,6 +27,7 @@ gem 'watir'
 gem 'watir-webdriver'
 gem 'thin'
 gem 'piplapis-ruby'
+gem 'pg'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
