@@ -32,7 +32,7 @@ class Linkedin
 
     b.goto 'linkedin.com'
     if b.text.include?('Forgot password?')
-      sleep 4
+      sleep 3..5
       b.text_fields.first.set user.login
       b.text_fields[1].set user.password
       b.buttons.first.click

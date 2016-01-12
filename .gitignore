@@ -9,9 +9,11 @@
 db/.bundle
 
 # Ignore the default SQLite database.
-#db/db/*.sqlite3
-#db/db/*.sqlite3-journal
+db/db/*.sqlite3
+db/db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
 db/log/*
 db/tmp
+
+db/config/users.yml
