@@ -31,7 +31,8 @@ default: &default
   encoding: unicode
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: 5
+  pool: 50
+  timeout: 10000
 
 development:
   <<: *default
@@ -40,4 +41,4 @@ development:
 
 #gem install sequel
 
-# sequel -C sqlite://db/development.sqlite3 postgres://deployer@localhost/linkedin
+# equel -C sqlite://db/development.sqlite3 postgres://deployer:q@localhost/linkedin
