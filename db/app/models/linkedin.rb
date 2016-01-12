@@ -32,7 +32,7 @@ class Linkedin
 
     b.goto 'linkedin.com'
     if b.text.include?('Forgot password?')
-      sleep 3..5
+      sleep 5
       b.text_fields.first.set user.login
       b.text_fields[1].set user.password
       b.buttons.first.click
@@ -128,6 +128,7 @@ class Linkedin
 
     users.each do |user|
       threads << Thread.new do
+        sleep(rand(0.1..3.2))
         url = user.url
         10.times do
           if url
