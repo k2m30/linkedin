@@ -7,7 +7,7 @@ class Linkedin
 
   @base_address = 'http://176.31.71.89:3000'
 
-  def self.load_users(file='./config/users.yml')
+  def self.load_users(file='./config/users/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
     users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'],
                                     users[key]['proxy'], users[key]['dir'], users[key]['url']) }
@@ -110,7 +110,7 @@ class Linkedin
           Watir::Wait.until { b.element(css: next_page_link_selector).exist? }
           b.element(css: next_page_link_selector).click
         else
-          return user.get_next_url(url), invitations
+          return user.get_next_url, invitations
         end
       end
     rescue => e
@@ -136,7 +136,7 @@ class Linkedin
     users.each do |user|
       threads << Thread.new do
         sleep(rand(0.1..3.2))
-        url = user.url
+        url = user.get_next_url
         invitations = 0
         10.times do
           if url
