@@ -1,7 +1,7 @@
 class User
   attr_accessor :id, :login, :password, :proxy, :url, :dir
 
-  def initialize(id, login ,password, proxy, dir, url)
+  def initialize(id='name', login='hilton.joel@yahoo.com', password='Razdvatri!23123', proxy='', dir='', url='')
     @id = id
     @login = login
     @password = password

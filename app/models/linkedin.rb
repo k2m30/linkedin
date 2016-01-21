@@ -1,11 +1,14 @@
-class Linkedin
-  require 'csv'
-  require 'pp'
-  require 'yaml'
-  require 'watir'
-  require 'watir-webdriver'
+require 'csv'
+require 'pp'
+require 'yaml'
+require 'watir'
+require 'watir-webdriver'
 
+class Linkedin
   @base_address = 'http://176.31.71.89:3000'
+  @wait_period = 0.2..2.2
+  @invitations = 0
+  @pages_visited = 0
 
   def self.load_users(file='./config/users/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
@@ -24,104 +27,136 @@ class Linkedin
     end
   end
 
-  def self.crawl(url, user)
-
-    prefs = {profile: {managed_default_content_settings: {images: 2}}}
-    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{user.dir} --proxy-server=#{user.proxy}]
-    b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
-
-    b.goto 'linkedin.com'
-    if b.text.include?('Forgot password?')
-      sleep 5
-      b.text_fields.first.set user.login
-      b.text_fields[1].set user.password
-      b.buttons.first.click
+  def self.remove_ads
+    %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
+      begin
+        @b.element(css: "##{id}").wait_until_present
+        @b.execute_script("document.getElementById('#{id}').remove();")
+      rescue => e
+        p e.message
+      end
     end
-    sleep 5
-    b.goto url
+  end
 
-    invitations = 0
-    minus_words = %w(marketing sales soft hr recruitment assistant)
-    wait_period = 0.2..2.2
-    active_link_selector = 'li.active'
-    next_page_link_selector = 'li.next>a.page-link'
+  def self.login(user)
+    wait
+    @b.text_fields.first.set user.login
+    @b.text_fields[1].set user.password
+    @b.buttons.first.click
+  end
+
+  def self.go_through_links(url)
     person_selector = '.people.result'
+    minus_words = %w(marketing sales soft hr recruitment assistant development coach)
+    @b.elements(css: person_selector).to_a.each_index do |i|
+      item = @b.elements(css: person_selector)[i]
+      name = item.element(css: '.main-headline')
+      position = item.element(css: '.bd .description')
+      industry = item.element(css: '.separator~ dd')
+      location = item.element(css: '#results bdi')
 
-    page = b.element(css: active_link_selector).text.to_i
+      name = name.exist? ? name.text : ''
+      position = position.exist? ? position.text : ''
+      industry = industry.exist? ? industry.text : ''
+      location = location.exist? ? location.text : ''
 
-    begin
-      while b.element(css: next_page_link_selector).exists?
-        url = b.url
-        p 'waiting'
-        p url
-        b.element(css: active_link_selector).wait_until_present
-        Watir::Wait.until { b.element(css: active_link_selector).exist? && b.element(css: active_link_selector).text == page.to_s && b.elements(css: '.main-headline').to_a.size == 10 }
-        p [b.element(css: active_link_selector).text, page]
-        b.elements(css: person_selector).to_a.each_index do |i|
+      begin
+        linkedin_id = URI(item.a(css: 'a.primary-action-button.label').href).query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
+      rescue
+        linkedin_id = nil
+      end
 
-          item = b.elements(css: person_selector)[i]
-          name = item.element(css: '.main-headline')
-          position = item.element(css: '.bd .description')
-          industry = item.element(css: '.separator~ dd')
-          location = item.element(css: '#results bdi')
+      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id}
 
-          name = name.exist? ? name.text : ''
-          position = position.exist? ? position.text : ''
-          industry = industry.exist? ? industry.text : ''
-          location = location.exist? ? location.text : ''
+      uri = URI("#{@base_address}/person")
+      uri.query = URI.encode_www_form person
+      user_exist = Net::HTTP.get(uri) == 'true'
 
-          begin
-            linkedin_id = URI(item.as(css: 'a.primary-action-button.label').first.href).query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
-          rescue => e
-            p e.message
-            pp e.backtrace[0..4]
-            linkedin_id = nil
+      unless user_exist
+        next if minus_words.map { |a| position.downcase.include? a }.include? true
+        # button = item.element(css: 'a.primary-action-button')
+        button = item.element(text: 'Connect')
+        if button.exist?
+          button.click
+          wait
+
+          if @b.url == url
+            @invitations += 1
+          else
+            wait
+            @b.goto url
           end
-
-          person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id}
-
-
-          uri = URI("#{@base_address}/person")
-          uri.query = URI.encode_www_form person
-          user_exist = Net::HTTP.get(uri) == 'true'
-
-          p [person[:name], user_exist]
-          unless user_exist
-            next if minus_words.map { |a| position.downcase.include? a }.include? true
-            button = item.element(css: 'a.primary-action-button')
-            button.click
-            # p person
-            sleep(rand(wait_period))
-
-            succeed = b.url == url
-
-            if succeed
-              invitations += 1
-            else
-              sleep(rand(wait_period))
-              b.goto url
-            end
-          end
-        end
-
-        sleep(rand(wait_period))
-        page = page + 1
-        if b.text.include?('Next >')
-          Watir::Wait.until { b.element(css: next_page_link_selector).exist? }
-          b.element(css: next_page_link_selector).click
-        else
-          return user.get_next_url, invitations
         end
       end
+    end
+  end
+
+  def self.wait_page_for_load
+    active_link_selector = 'li.active'
+    @b.element(css: '#results-pagination').wait_until_present
+    Watir::Wait.until { @b.element(css: active_link_selector).exist? }
+  end
+
+  def self.wait
+    sleep(rand(@wait_period))
+  end
+
+  def self.open_browser(user)
+    prefs = {profile: {managed_default_content_settings: {images: 2}}}
+    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{user.dir} --proxy-server=#{user.proxy}]
+    @b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
+    @b.goto 'linkedin.com'
+
+    login(user) if @b.text.include?('Forgot password?')
+    wait
+  end
+
+  def self.crawl(url, user)
+    open_browser(user) if @b.nil?
+    @b.goto url
+    wait
+
+
+    search_result_selector = '.search-info p strong'
+
+    if @b.element(css: search_result_selector).text.to_i <= 10
+      # @b.close
+      return user.get_next_url
+    end
+
+    remove_ads
+
+    begin
+      if @b.text.include? 'Sorry, no results containing all your search terms were found'
+        # @b.close
+        return user.get_next_url
+      end
+
+      url = @b.url
+
+      wait_page_for_load
+      go_through_links(url)
+      wait
+      @pages_visited += 1
+
+      if @b.text.include?('Next >')
+        @b.element(text: 'Next >').click
+      else
+        # byebug
+        # @b.close
+        return user.get_next_url
+      end
+
     rescue => e
       p e.message
       pp e.backtrace[0..4]
-      url = b.url
-      unless b.text.include?('Security Verification') #wait for captcha
-        b.close
-        return url, invitations
+      url = @b.url
+      # byebug
+      unless @b.text.include?('Security Verification') #wait for captcha
+        # @b.close
+        return url
       end
-    end
+    end while @b.text.include?('Next >')
 
     false
   end
@@ -135,15 +170,14 @@ class Linkedin
 
     users.each do |user|
       threads << Thread.new do
-        sleep(rand(0.1..3.2))
+        wait
         url = user.get_next_url
-        invitations = 0
         10.times do
           if url
-            url, i = crawl(url, user)
-            invitations += i
-            if invitations > 1000
-              p [user.dir, invitations, 'invitations sent']
+            url = crawl(url, user)
+            p [user.dir, @invitations, 'invitations sent and ', @pages_visited, ' pages visited']
+            if @invitations > 1000 || @pages_visited > 250
+              p ['Finished', user.dir, @invitations, 'invitations sent and ', @pages_visited, ' pages visited']
               break
             end
             user.url = url
