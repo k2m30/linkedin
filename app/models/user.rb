@@ -15,7 +15,7 @@ class User
   end
 
   def get_next_url
-    path = "./config/users/#{@dir}.csv"
+    path = "../../config/users/#{@dir}.csv"
     table = CSV.read path, headers: true
     table.by_row!
 

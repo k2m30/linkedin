@@ -3,14 +3,19 @@ require 'pp'
 require 'yaml'
 require 'watir'
 require 'watir-webdriver'
+require './user'
 
 class Linkedin
-  @base_address = 'http://176.31.71.89:3000'
-  @wait_period = 0.2..2.2
-  @invitations = 0
-  @pages_visited = 0
+  attr_accessor :invitations, :pages_visited
 
-  def self.load_users(file='./config/users/users.yml')
+  def initialize
+    @base_address = 'http://176.31.71.89:3000'
+    @wait_period = 0.2..2.2
+    @invitations = 0
+    @pages_visited = 0
+  end
+
+  def self.load_users(file='../../config/users/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
     users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'],
                                     users[key]['proxy'], users[key]['dir'], users[key]['url']) }
@@ -27,7 +32,7 @@ class Linkedin
     end
   end
 
-  def self.remove_ads
+  def remove_ads
     %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
       begin
         @b.element(css: "##{id}").wait_until_present
@@ -38,14 +43,14 @@ class Linkedin
     end
   end
 
-  def self.login(user)
+  def login(user)
     wait
     @b.text_fields.first.set user.login
     @b.text_fields[1].set user.password
     @b.buttons.first.click
   end
 
-  def self.go_through_links(url)
+  def go_through_links(url)
     person_selector = '.people.result'
     minus_words = %w(marketing sales soft hr recruitment assistant development coach)
     @b.elements(css: person_selector).to_a.each_index do |i|
@@ -91,18 +96,19 @@ class Linkedin
     end
   end
 
-  def self.wait_page_for_load
+  def wait_page_for_load
     active_link_selector = 'li.active'
     @b.element(css: '#results-pagination').wait_until_present
     Watir::Wait.until { @b.element(css: active_link_selector).exist? }
   end
 
-  def self.wait
+  def wait
     sleep(rand(@wait_period))
   end
 
-  def self.open_browser(user)
-    prefs = {profile: {managed_default_content_settings: {images: 2}}}
+  def open_browser(user)
+    # prefs = {profile: {managed_default_content_settings: {images: 2}}}
+    prefs = {}
     switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{user.dir} --proxy-server=#{user.proxy}]
     @b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
     @b.goto 'linkedin.com'
@@ -111,7 +117,7 @@ class Linkedin
     wait
   end
 
-  def self.crawl(url, user)
+  def crawl(url, user)
     open_browser(user) if @b.nil?
     @b.goto url
     wait
@@ -119,8 +125,8 @@ class Linkedin
 
     search_result_selector = '.search-info p strong'
 
-    if @b.element(css: search_result_selector).text.to_i <= 10
-      # @b.close
+    if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
+      p ['not enough search results', @b.element(css: search_result_selector).text, url]
       return user.get_next_url
     end
 
@@ -161,37 +167,39 @@ class Linkedin
     false
   end
 
-  def self.start
-    users = load_users
-
-    threads = []
-    initial_size = Net::HTTP.get(URI("#{@base_address}/count"))
-    p ['initial size', initial_size]
-
-    users.each do |user|
-      threads << Thread.new do
-        wait
-        url = user.get_next_url
-        10.times do
-          if url
-            url = crawl(url, user)
-            p [user.dir, @invitations, 'invitations sent and ', @pages_visited, ' pages visited']
-            if @invitations > 1000 || @pages_visited > 250
-              p ['Finished', user.dir, @invitations, 'invitations sent and ', @pages_visited, ' pages visited']
-              break
-            end
-            user.url = url
-          end
-        end
-      end
-    end
-
-    threads.each do |thread|
-      thread.join
-    end
-
-    final_size = Net::HTTP.get(URI("#{@base_address}/count"))
-    p ['final size', final_size]
-    p "#{final_size.to_i-initial_size.to_i} invitations sent"
+  def destroy
+    @b.close
   end
 end
+
+users = Linkedin.load_users
+
+
+users.each do |user|
+  crawler = Linkedin.new
+  crawler.wait
+  url = user.get_next_url
+  while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
+    url = crawler.crawl(url, user)
+    p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  end
+  p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  crawler.destroy
+end
+
+# users.each do |user|
+#   threads << Thread.new do
+#     crawler = Linkedin.new
+#     crawler.wait
+#     url = user.get_next_url
+#     while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
+#       url = crawler.crawl(url, user)
+#       p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+#     end
+#     p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+#   end
+# end
+#
+# threads.each do |thread|
+#   thread.join
+# end
