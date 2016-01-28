@@ -5,7 +5,7 @@ class PersonsController < ApplicationController
       format.html do
         @people = Person.where.not(notes: nil).limit(10)
       end
-      format.csv {send_data Person.export_to_csv}
+      format.csv { send_data Person.export_to_csv }
     end
   end
 
@@ -29,6 +29,6 @@ class PersonsController < ApplicationController
   end
 
   def count
-    render text: Person.count
+    render text: 'Total: ' << Person.count.to_s << ', Emails: ' << Person.where.not(email: nil).count.to_s << ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s
   end
 end
