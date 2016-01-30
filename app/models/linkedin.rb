@@ -78,7 +78,6 @@ class Linkedin
       uri.query = URI.encode_www_form person
       user_exist = Net::HTTP.get(uri) == 'true'
 
-      p uri.query
       unless user_exist
         next if minus_words.map { |a| position.downcase.include? a }.include? true
         # button = item.element(css: 'a.primary-action-button')

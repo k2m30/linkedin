@@ -9,9 +9,9 @@ class Person < ActiveRecord::Base
   #   end
   # end
 
-  def self.add_user(params)
-    Person.create(name: params[:name], position: params[:position], industry: params[:industry],
-                  location: params[:location], linkedin_id: params[:linkedin_id], owner: params[:owner], created_at: Time.now)
+  def self.add_user(search_hash)
+    Person.create(name: search_hash[:name], position: search_hash[:position], industry: search_hash[:industry],
+                  location: search_hash[:location], linkedin_id: search_hash[:linkedin_id], owner: search_hash[:owner], created_at: Time.now)
   end
 
   def self.add_email_to_person(linkedin_id, email)
@@ -63,6 +63,7 @@ class Person < ActiveRecord::Base
     search_hash[:position] = params[:position] if params[:position].present?
     search_hash[:industry] = params[:industry] if params[:industry].present?
     search_hash[:location] = params[:location] if params[:location].present?
+    search_hash[:owner] = params[:owner] if params[:owner].present?
 
 
     return false if search_hash.empty?
@@ -71,7 +72,7 @@ class Person < ActiveRecord::Base
       user.update linkedin_id: params[:linkedin_id]
     end
 
-    if search_hash.size == 4 && user.nil? && params[:linkedin_id].present?
+    if search_hash.size == 5 && user.nil? && params[:linkedin_id].present?
       search_hash[:linkedin_id] = params[:linkedin_id]
       add_user search_hash
     end
