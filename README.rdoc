@@ -5,26 +5,27 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version
+* Legacy connections
 
-* System dependencies
+a = setInterval(function () {
+  window.scrollTo(0,document.body.scrollHeight);
+}, 1000);
 
-* Configuration
+window.clearTimeout(a);
 
-* Database creation
+if(!window.jQuery||confirm("Overwrite\x20current\x20version?\x20v"+jQuery.fn.jquery))(function(d,s){s=d.createElement('script');s.src="https://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.js";(d.head||d.documentElement).appendChild(s)})(document);
 
-* Database initialization
+$("li.entity-row > div > input#checkbox-").parent().remove();
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
 
-* ...
+git stash
 
+git pull
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+chmod +x restart.sh
+
+./restart.sh
 
 * nohup thin start -a 0.0.0.0 > /dev/null 2>&1 &
