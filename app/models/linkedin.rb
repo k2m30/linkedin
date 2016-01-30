@@ -8,11 +8,12 @@ require './user'
 class Linkedin
   attr_accessor :invitations, :pages_visited
 
-  def initialize
+  def initialize(user)
     @base_address = 'http://176.31.71.89:3000'
     @wait_period = 0.2..2.2
     @invitations = 0
     @pages_visited = 0
+    @user = user
   end
 
   def self.load_users(file='../../config/users/users.yml')
@@ -43,10 +44,10 @@ class Linkedin
     end
   end
 
-  def login(user)
+  def login
     wait
-    @b.text_fields.first.set user.login
-    @b.text_fields[1].set user.password
+    @b.text_fields.first.set @user.login
+    @b.text_fields[1].set @user.password
     @b.buttons.first.click
   end
 
@@ -71,7 +72,7 @@ class Linkedin
         linkedin_id = nil
       end
 
-      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id}
+      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user.dir}
 
       uri = URI("#{@base_address}/person")
       uri.query = URI.encode_www_form person
@@ -106,28 +107,27 @@ class Linkedin
     sleep(rand(@wait_period))
   end
 
-  def open_browser(user)
+  def open_browser
     # prefs = {profile: {managed_default_content_settings: {images: 2}}}
     prefs = {}
-    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{user.dir} --proxy-server=#{user.proxy}]
+    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{@user.dir} --proxy-server=#{@user.proxy}]
     @b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
     @b.goto 'linkedin.com'
 
-    login(user) if @b.text.include?('Forgot password?')
+    login if @b.text.include?('Forgot password?')
     wait
   end
 
-  def crawl(url, user)
-    open_browser(user) if @b.nil?
+  def crawl(url)
+    open_browser if @b.nil?
     @b.goto url
     wait
-
 
     search_result_selector = '.search-info p strong'
 
     if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
       p ['not enough search results', @b.element(css: search_result_selector).text, url]
-      return user.get_next_url
+      return @user.get_next_url
     end
 
     remove_ads
@@ -135,7 +135,7 @@ class Linkedin
     begin
       if @b.text.include? 'Sorry, no results containing all your search terms were found'
         # @b.close
-        return user.get_next_url
+        return @user.get_next_url
       end
 
       url = @b.url
@@ -150,7 +150,7 @@ class Linkedin
       else
         # byebug
         # @b.close
-        return user.get_next_url
+        return @user.get_next_url
       end
 
     rescue => e
@@ -176,30 +176,13 @@ users = Linkedin.load_users
 
 
 users.each do |user|
-  crawler = Linkedin.new
+  crawler = Linkedin.new user
   crawler.wait
   url = user.get_next_url
   while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
-    url = crawler.crawl(url, user)
+    url = crawler.crawl(url)
     p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   end
   p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   crawler.destroy
 end
-
-# users.each do |user|
-#   threads << Thread.new do
-#     crawler = Linkedin.new
-#     crawler.wait
-#     url = user.get_next_url
-#     while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
-#       url = crawler.crawl(url, user)
-#       p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
-#     end
-#     p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
-#   end
-# end
-#
-# threads.each do |thread|
-#   thread.join
-# end
