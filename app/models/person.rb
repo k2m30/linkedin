@@ -11,7 +11,7 @@ class Person < ActiveRecord::Base
 
   def self.add_user(params)
     Person.create(name: params[:name], position: params[:position], industry: params[:industry],
-                  location: params[:location], linkedin_id: params[:linkedin_id], owner: params[:owner])
+                  location: params[:location], linkedin_id: params[:linkedin_id], owner: params[:owner], creared_at: Time.now)
   end
 
   def self.add_email_to_person(linkedin_id, email)
