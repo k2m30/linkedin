@@ -23,9 +23,13 @@ class PersonsController < ApplicationController
     render text: Person.exists?(params)
   end
 
-  def add_person
-    Person.add_person(params)
-    render text: 'ok'
+  # def add_person
+  #   Person.add_person(params)
+  #   render text: 'ok'
+  # end
+
+  def get_next_url
+    render text: Keyword.get_next_url(params[:owner], params[:industry]) || 'false'
   end
 
   def count

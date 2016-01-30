@@ -6,32 +6,71 @@ require 'watir-webdriver'
 require './user'
 
 class Linkedin
-  attr_accessor :invitations, :pages_visited
+  attr_accessor :invitations, :pages_visited, :base_address
 
   def initialize(user)
     @base_address = 'http://176.31.71.89:3000'
+    # @base_address = 'http://127.0.0.1:3000'
     @wait_period = 0.2..2.2
     @invitations = 0
     @pages_visited = 0
     @user = user
   end
 
-  def self.load_users(file='../../config/users/users.yml')
-    users = File.open(file) { |yf| YAML::load(yf) }
-    users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'],
-                                    users[key]['proxy'], users[key]['dir'], users[key]['url']) }
-  end
+  def crawl(url)
+    open_browser if @b.nil?
+    @b.goto url
+    wait
 
-  def self.save_users(file='users.yml', users)
-    hash = {}
-    users.each do |user|
-      hash.merge! user.to_hash
+    search_result_selector = '.search-info p strong'
+
+    if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
+      p ['not enough search results', @b.element(css: search_result_selector).text, url]
+      return @user.get_next_url(@base_address)
     end
 
-    File.open(file, 'w+') do |f|
-      f.puts hash.to_yaml
-    end
+    remove_ads
+
+    begin
+      if @b.text.include? 'Sorry, no results containing all your search terms were found'
+        # @b.close
+        return @user.get_next_url(@base_address)
+      end
+
+      url = @b.url
+
+      wait_page_for_load
+      go_through_links(url)
+      wait
+      @pages_visited += 1
+
+      if @b.text.include?('Next >')
+        @b.element(text: 'Next >').click
+      else
+        # byebug
+        # @b.close
+        return @user.get_next_url(@base_address)
+      end
+
+    rescue => e
+      p e.message
+      pp e.backtrace[0..4]
+      url = @b.url
+      # byebug
+      unless @b.text.include?('Security Verification') #wait for captcha
+        # @b.close
+        return url
+      end
+    end while @b.text.include?('Next >')
+
+    false
   end
+
+  def wait
+    sleep(rand(@wait_period))
+  end
+
+  private
 
   def remove_ads
     %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
@@ -103,10 +142,6 @@ class Linkedin
     Watir::Wait.until { @b.element(css: active_link_selector).exist? }
   end
 
-  def wait
-    sleep(rand(@wait_period))
-  end
-
   def open_browser
     # prefs = {profile: {managed_default_content_settings: {images: 2}}}
     prefs = {}
@@ -118,67 +153,17 @@ class Linkedin
     wait
   end
 
-  def crawl(url)
-    open_browser if @b.nil?
-    @b.goto url
-    wait
-
-    search_result_selector = '.search-info p strong'
-
-    if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
-      p ['not enough search results', @b.element(css: search_result_selector).text, url]
-      return @user.get_next_url
-    end
-
-    remove_ads
-
-    begin
-      if @b.text.include? 'Sorry, no results containing all your search terms were found'
-        # @b.close
-        return @user.get_next_url
-      end
-
-      url = @b.url
-
-      wait_page_for_load
-      go_through_links(url)
-      wait
-      @pages_visited += 1
-
-      if @b.text.include?('Next >')
-        @b.element(text: 'Next >').click
-      else
-        # byebug
-        # @b.close
-        return @user.get_next_url
-      end
-
-    rescue => e
-      p e.message
-      pp e.backtrace[0..4]
-      url = @b.url
-      # byebug
-      unless @b.text.include?('Security Verification') #wait for captcha
-        # @b.close
-        return url
-      end
-    end while @b.text.include?('Next >')
-
-    false
-  end
-
   def destroy
     @b.close
   end
 end
 
-users = Linkedin.load_users
-
+users = User.load_users
 
 users.each do |user|
   crawler = Linkedin.new user
   crawler.wait
-  url = user.get_next_url
+  url = user.get_next_url(crawler.base_address)
   while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
     url = crawler.crawl(url)
     p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
