@@ -24,9 +24,10 @@ class Linkedin
 
     search_result_selector = '.search-info p strong'
 
-    if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
-      p ['not enough search results', @b.element(css: search_result_selector).text, url]
-      return @user.get_next_url(@base_address)
+    if @b.text.include? 'Due to excessive searching, your people search results are limited'
+      p 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
+      destroy
+      return false
     end
 
     remove_ads
@@ -34,6 +35,11 @@ class Linkedin
     begin
       if @b.text.include? 'Sorry, no results containing all your search terms were found'
         # @b.close
+        return @user.get_next_url(@base_address)
+      end
+
+      if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
+        p ['not enough search results', @b.element(css: search_result_selector).text, url]
         return @user.get_next_url(@base_address)
       end
 
@@ -70,7 +76,11 @@ class Linkedin
     sleep(rand(@wait_period))
   end
 
-  private
+  def destroy
+    @b.close
+  end
+
+  protected
 
   def remove_ads
     %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
@@ -92,7 +102,7 @@ class Linkedin
 
   def go_through_links(url)
     person_selector = '.people.result'
-    minus_words = %w(marketing sales soft hr recruitment assistant development coach)
+    minus_words = %w(marketing sales soft hr assistant development coach recruit)
     @b.elements(css: person_selector).to_a.each_index do |i|
       item = @b.elements(css: person_selector)[i]
       name = item.element(css: '.main-headline')
@@ -151,10 +161,6 @@ class Linkedin
 
     login if @b.text.include?('Forgot password?')
     wait
-  end
-
-  def destroy
-    @b.close
   end
 end
 
