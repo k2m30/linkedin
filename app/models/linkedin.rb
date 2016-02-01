@@ -32,6 +32,12 @@ class Linkedin
       return false
     end
 
+    if @b.text.include? 'We have detected an unusually high number of page views from your account'
+      p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
+      destroy
+      return false
+    end
+
     remove_ads
 
     begin
