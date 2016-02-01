@@ -1,6 +1,8 @@
 require 'csv'
 require 'pp'
 require 'yaml'
+require 'open-uri'
+require 'net/http'
 require 'watir'
 require 'watir-webdriver'
 require './user'
