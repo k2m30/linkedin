@@ -18,9 +18,10 @@ class Keyword < ActiveRecord::Base
 
     industry_str = data['industries'].key(industry.to_i)
     keywords = data['keywords'][industry_str].split(',') + data['keywords']['All'].split(',')
+    keywords.insert 0, ''
 
-    positions.each do |position|
-      keywords.each do |keyword|
+    keywords.each do |keyword|
+      positions.each do |position|
         Keyword.find_or_create_by(owner: owner, position: position, keyword: keyword, industry: industry.to_i)
       end
     end

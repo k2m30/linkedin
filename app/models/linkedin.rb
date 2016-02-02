@@ -5,10 +5,10 @@ require 'open-uri'
 require 'net/http'
 require 'watir'
 require 'watir-webdriver'
-require './user'
+require_relative 'user'
 
 class Linkedin
-  attr_accessor :invitations, :pages_visited, :base_address
+  attr_accessor :invitations, :pages_visited, :searches_made, :base_address
 
   def initialize(user)
     @base_address = 'http://176.31.71.89:3000'
@@ -16,6 +16,7 @@ class Linkedin
     @wait_period = 0.2..2.2
     @invitations = 0
     @pages_visited = 0
+    @searches_made = 0
     @user = user
   end
 
@@ -23,6 +24,9 @@ class Linkedin
     open_browser if @b.nil?
     @b.goto url
     wait
+
+    @searches_made += 1
+    @pages_visited += 1
 
     search_result_selector = '.search-info p strong'
 
@@ -178,7 +182,7 @@ users.each do |user|
   crawler = Linkedin.new user
   crawler.wait
   url = user.get_next_url(crawler.base_address)
-  while crawler.invitations < 350 && crawler.pages_visited < 80 && url do
+  while crawler.invitations < 350 && crawler.pages_visited < 80 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
     p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   end

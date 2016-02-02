@@ -16,7 +16,7 @@ class User
   def self.load_users(file='../../config/users/users.yml')
     users = File.open(file) { |yf| YAML::load(yf) }
     users.keys.map { |key| User.new(key, users[key]['l'], users[key]['p'],
-                                    users[key]['proxy'], users[key]['dir'], users[key]['url']) }
+                                    users[key]['proxy'], users[key]['dir'], users[key]['url'], users[key]['industry']) }
   end
 
   def to_hash
