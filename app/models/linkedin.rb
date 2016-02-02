@@ -178,7 +178,7 @@ users.each do |user|
   crawler = Linkedin.new user
   crawler.wait
   url = user.get_next_url(crawler.base_address)
-  while crawler.invitations < 1000 && crawler.pages_visited < 250 && url do
+  while crawler.invitations < 350 && crawler.pages_visited < 80 && url do
     url = crawler.crawl(url)
     p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   end
