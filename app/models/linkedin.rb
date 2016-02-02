@@ -184,7 +184,7 @@ users.each do |user|
   url = user.get_next_url(crawler.base_address)
   while crawler.invitations < 350 && crawler.pages_visited < 80 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
-    p [user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+    p [user.dir, crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
   p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   crawler.destroy
