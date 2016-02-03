@@ -17,7 +17,8 @@ class Keyword < ActiveRecord::Base
     positions = data['positions'].split(', ')
 
     industry_str = data['industries'].key(industry.to_i)
-    keywords = data['keywords'][industry_str].split(',') + data['keywords']['All'].split(',')
+    industry_keywords = data['keywords'][industry_str] || ''
+    keywords = industry_keywords.split(',') + data['keywords']['All'].split(',')
     keywords.insert 0, ''
 
     keywords.each do |keyword|
