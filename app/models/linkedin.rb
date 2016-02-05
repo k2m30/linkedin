@@ -32,13 +32,11 @@ class Linkedin
 
     if @b.text.include? 'Due to excessive searching, your people search results are limited'
       p 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
-      destroy
       return false
     end
 
     if @b.text.include? 'We have detected an unusually high number of page views from your account'
       p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
-      destroy
       return false
     end
 
