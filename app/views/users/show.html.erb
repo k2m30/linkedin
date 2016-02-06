@@ -1,0 +1,16 @@
+<p id="notice"><%= notice %></p>
+
+<div>
+  <table>
+    <% User.attribute_names[1..-1].each do |attribute| %>
+        <tr>
+          <td><%= attribute %></td>
+          <td><%= @user.send attribute %></td>
+        </tr>
+    <% end %>
+  </table>
+</div>
+
+
+<%= link_to 'Edit', edit_user_path(@user) %> |
+<%= link_to 'Back', users_path %>

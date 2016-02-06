@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
     users = File.open(file) { |yf| YAML::load(yf) }
     users.keys.map { |key| User.create(login: users[key]['l'], password: users[key]['p'],
                                     proxy: users[key]['proxy'], dir: users[key]['dir'], industry: users[key]['industry'],
-                                    command_str: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-udd-profiles --user-data-dir=/Users/#{ENV['HOME']}/1chrm/#{@dir}/") }
+                                    command_str: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-udd-profiles --user-data-dir=#{ENV['HOME']}/1chrm/#{users[key]['dir']}") }
   end
 
   # def to_hash

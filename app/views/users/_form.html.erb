@@ -1,0 +1,28 @@
+<%= form_for(@user) do |f| %>
+    <% if @user.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@user.errors.count, 'error') %> prohibited this user from being saved:</h2>
+
+          <ul>
+            <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div>
+      <table>
+        <% User.attribute_names[1..-1].each do |attribute| %>
+            <tr>
+              <td><%= f.label attribute %></td>
+              <td><%= f.text_field attribute.to_sym, size: 150 %></td>
+            </tr>
+        <% end %>
+      </table>
+    </div>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

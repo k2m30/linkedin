@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :users
   root 'main#index'
 
   get 'person' => 'persons#person_exists'
