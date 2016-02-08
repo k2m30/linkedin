@@ -5,19 +5,19 @@ require 'open-uri'
 require 'net/http'
 require 'watir'
 require 'watir-webdriver'
-require_relative 'user'
+# require_relative 'user'
+require_relative 'server'
 
 class Linkedin
-  attr_accessor :invitations, :pages_visited, :searches_made, :base_address
+  attr_accessor :invitations, :pages_visited, :searches_made
 
-  def initialize(user)
-    @base_address = 'http://176.31.71.89:3000'
-    # @base_address = 'http://127.0.0.1:3000'
+  def initialize(user, server)
     @wait_period = 0.2..2.2
     @invitations = 0
     @pages_visited = 0
     @searches_made = 0
     @user = user
+    @server = server
   end
 
   def crawl(url)
@@ -45,12 +45,12 @@ class Linkedin
     begin
       if @b.text.include? 'Sorry, no results containing all your search terms were found'
         # @b.close
-        return @user.get_next_url(@base_address)
+        return @server.get_next_url(user)
       end
 
       if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
         p ['not enough search results', @b.element(css: search_result_selector).text, url]
-        return @user.get_next_url(@base_address)
+        return @server.get_next_url(user)
       end
 
       url = @b.url
@@ -65,7 +65,7 @@ class Linkedin
       else
         # byebug
         # @b.close
-        return @user.get_next_url(@base_address)
+        return @server.get_next_url(user)
       end
 
     rescue => e
@@ -105,8 +105,8 @@ class Linkedin
 
   def login
     wait
-    @b.text_fields.first.set @user.login
-    @b.text_fields[1].set @user.password
+    @b.text_fields.first.set @user[:email]
+    @b.text_fields[1].set @user[:password]
     @b.buttons.first.click
   end
 
@@ -131,13 +131,9 @@ class Linkedin
         linkedin_id = nil
       end
 
-      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user.dir}
+      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
 
-      uri = URI("#{@base_address}/person")
-      uri.query = URI.encode_www_form person
-      user_exist = Net::HTTP.get(uri) == 'true'
-
-      unless user_exist
+      unless @server.person.exists?(person)
         next if minus_words.map { |a| position.downcase.include? a }.include? true
         # button = item.element(css: 'a.primary-action-button')
         button = item.element(text: 'Connect')
@@ -165,7 +161,7 @@ class Linkedin
   def open_browser
     # prefs = {profile: {managed_default_content_settings: {images: 2}}}
     prefs = {}
-    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{@user.dir} --proxy-server=#{@user.proxy}]
+    switches = %W[--user-data-dir=#{ENV['HOME']}/1chrm/#{@user[:dir]} --proxy-server=#{@user[:proxy]}]
     @b = Watir::Browser.new :chrome, switches: switches, prefs: prefs
     @b.goto 'linkedin.com'
 
@@ -174,16 +170,18 @@ class Linkedin
   end
 end
 
-users = User.load_users
+# users = User.load_users
 
-users.each do |user|
-  crawler = Linkedin.new user
+server = Server.new('http://127.0.0.1:3000')
+
+server.users.each do |user|
+  crawler = Linkedin.new user, server
   crawler.wait
-  url = user.get_next_url(crawler.base_address)
+  url = server.get_next_url(user)
   while crawler.invitations < 350 && crawler.pages_visited < 80 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
-    p [user.dir, crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
+    p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
-  p ['Finished', user.dir, crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  p ['Finished', user[:dir], crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   crawler.destroy
 end

@@ -2,7 +2,7 @@ class CreateUsers < ActiveRecord::Migration
   def change
     create_table :users do |t|
       t.string :dir
-      t.integer :industry
+      t.belongs_to :industry
       t.string :login
       t.string :password
       t.string :proxy

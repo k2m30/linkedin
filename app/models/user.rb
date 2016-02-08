@@ -1,36 +1,39 @@
 class User < ActiveRecord::Base
-  class NoUrlException < StandardError; end
+  validates :dir, uniqueness: true
+  belongs_to :industry
 
-  # attr_accessor :id, :login, :password, :proxy, :url, :dir, :industry
-
-  # def initialize(id='name', login='hilton.joel@yahoo.com', password='Razdvatri!23123', proxy='', dir='Joel_Hilton', url='', industry = 43)
-  #   @id = id
-  #   @login = login
-  #   @password = password
-  #   @proxy = proxy
-  #   @url = url
-  #   @dir = dir
-  #   @industry = industry
-  # end
-
-  def self.load_users(file='../../config/users/users.yml')
+  def self.load_users(file='config/users/users.yml')
+    file = Rails.root + file
     users = File.open(file) { |yf| YAML::load(yf) }
     users.keys.map { |key| User.create(login: users[key]['l'], password: users[key]['p'],
-                                    proxy: users[key]['proxy'], dir: users[key]['dir'], industry: users[key]['industry'],
+                                    proxy: users[key]['proxy'], dir: users[key]['dir'], industry: Industry.find_by(index: users[key]['industry'].to_i),
                                     command_str: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-udd-profiles --user-data-dir=#{ENV['HOME']}/1chrm/#{users[key]['dir']}") }
   end
 
-  # def to_hash
-  #   {@id => {'l' => @login, 'p' => @password, 'proxy' => @proxy, 'dir' => @dir, 'url' => @url, 'industry' => @industry}}
-  # end
+  def get_next_url
+    keyword = Keyword.find_by(owner: self.dir, passed: false)
+    if keyword.nil?
+      multiply_keywords
+      keyword = Keyword.find_by(owner: self.dir, passed: false)
+      return nil if keyword.nil?
+    end
+    keyword.update(passed: true)
+    "https://www.linkedin.com/vsearch/p?keywords=#{keyword.keyword.gsub(' ', '%20')}&title=#{keyword.position.gsub(' ', '%20')}&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691454119532620&orig=FCTD&openFacets=N,G,CC,I&f_N=S&f_I=#{self.industry.index}"
+  end
 
-  def get_next_url(base_address)
-    person = {owner: dir, industry: industry}
-    uri = URI("#{base_address}/next_url")
-    uri.query = URI.encode_www_form person
-    url = Net::HTTP.get(uri)
+  def multiply_keywords
+    stale_keywords = Keyword.where(owner: self.dir, passed: false)
+    stale_keywords.destroy_all unless stale_keywords.blank?
 
-    raise NoUrlException.new('No search url found') if url == 'false'
-    url
+    positions = Industry.positions.split(', ')
+
+    keywords = self.industry.keywords.split(',') + Industry.find_by(index: 0).keywords.split(',')
+    keywords.insert 0, ''
+
+    keywords.each do |keyword|
+      positions.each do |position|
+        Keyword.find_or_create_by(owner: self.dir, position: position, keyword: keyword, industry: self.industry.index.to_i)
+      end
+    end
   end
 end
