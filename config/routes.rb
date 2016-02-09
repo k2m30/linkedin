@@ -10,4 +10,6 @@ Rails.application.routes.draw do
   get 'add_email' => 'persons#add_email_to_person'
   post 'import' => 'persons#import'
   get 'download' => 'main#download_base'
+
+  mount Tail::Engine, at: '/tail'
 end

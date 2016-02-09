@@ -1,4 +1,13 @@
 class PersonsController < ApplicationController
+  around_action :mute
+
+  def mute
+    old_level = Rails.logger.level
+    Rails.logger.level = Logger::FATAL
+    yield
+    Rails.logger.level = old_level
+  end
+
   def export
 
     respond_to do |format|
@@ -34,5 +43,9 @@ class PersonsController < ApplicationController
         ', Emails: ' << Person.where.not(email: nil).count.to_s <<
         ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s <<
         ', Notes: ' << Person.where.not(notes: nil).count.to_s
+  end
+
+  def logger
+    nil
   end
 end

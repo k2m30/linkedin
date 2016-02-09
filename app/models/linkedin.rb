@@ -5,7 +5,6 @@ require 'open-uri'
 require 'net/http'
 require 'watir'
 require 'watir-webdriver'
-# require_relative 'user'
 require_relative 'server'
 
 class Linkedin
@@ -20,16 +19,11 @@ class Linkedin
     @server = server
   end
 
-  def crawl(url)
-    open_browser if @b.nil?
-    @b.goto url
-    wait
+  def login_ok?
+    @b.text.include?('Business Services')
+  end
 
-    @searches_made += 1
-    @pages_visited += 1
-
-    search_result_selector = '.search-info p strong'
-
+  def search_ok?
     if @b.text.include? 'Due to excessive searching, your people search results are limited'
       p 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
       return false
@@ -39,18 +33,33 @@ class Linkedin
       p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
       return false
     end
+    true
+  end
+
+  def crawl(url)
+    open_browser if @b.nil?
+    return false unless login_ok?
+    @b.goto url
+    wait
+
+    @searches_made += 1
+    @pages_visited += 1
+
+    search_result_selector = '.search-info p strong'
+
+    return false unless search_ok?
 
     remove_ads
 
     begin
       if @b.text.include? 'Sorry, no results containing all your search terms were found'
         # @b.close
-        return @server.get_next_url(user)
+        return @server.get_next_url(@user)
       end
 
       if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
         p ['not enough search results', @b.element(css: search_result_selector).text, url]
-        return @server.get_next_url(user)
+        return @server.get_next_url(@user)
       end
 
       url = @b.url
@@ -65,7 +74,7 @@ class Linkedin
       else
         # byebug
         # @b.close
-        return @server.get_next_url(user)
+        return @server.get_next_url(@user)
       end
 
     rescue => e
@@ -93,9 +102,9 @@ class Linkedin
   protected
 
   def remove_ads
-    %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
+    wait
+    %w(ads-col responsive-nav-scrollable bottom-ads-container member-ads).each do |id|
       begin
-        @b.element(css: "##{id}").wait_until_present
         @b.execute_script("document.getElementById('#{id}').remove();")
       rescue => e
         p e.message
@@ -105,7 +114,7 @@ class Linkedin
 
   def login
     wait
-    @b.text_fields.first.set @user[:email]
+    @b.text_fields.first.set @user[:login]
     @b.text_fields[1].set @user[:password]
     @b.buttons.first.click
   end
@@ -133,7 +142,7 @@ class Linkedin
 
       person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
 
-      unless @server.person.exists?(person)
+      unless @server.person_exists?(person)
         next if minus_words.map { |a| position.downcase.include? a }.include? true
         # button = item.element(css: 'a.primary-action-button')
         button = item.element(text: 'Connect')
@@ -174,7 +183,8 @@ end
 
 server = Server.new('http://127.0.0.1:3000')
 
-server.users.each do |user|
+# server.users.each do |user|
+server.users.select { |u| u[:dir]==ARGV[0] }.each do |user|
   crawler = Linkedin.new user, server
   crawler.wait
   url = server.get_next_url(user)
@@ -183,5 +193,6 @@ server.users.each do |user|
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
   p ['Finished', user[:dir], crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  break unless url
   crawler.destroy
 end
