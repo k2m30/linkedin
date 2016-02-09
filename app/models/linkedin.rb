@@ -180,10 +180,9 @@ class Linkedin
   end
 end
 
-# users = User.load_users
+
 
 server = Server.new('http://127.0.0.1:3000')
-
 if ARGV.empty?
   users = server.users
 else
@@ -198,7 +197,7 @@ users.each do |user|
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
-  p ['Finished', user[:dir], crawler.searches_made, ' searches made and ',crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  p ['Finished', user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   break unless url
   crawler.destroy
 end
