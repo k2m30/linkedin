@@ -93,9 +93,9 @@ class Linkedin
   protected
 
   def remove_ads
-    %w(ads-col responsive-nav-scrollable bottom-ads-container).each do |id|
+    wait
+    %w(ads-col responsive-nav-scrollable bottom-ads-container member-ads).each do |id|
       begin
-        @b.element(css: "##{id}").wait_until_present
         @b.execute_script("document.getElementById('#{id}').remove();")
       rescue => e
         p e.message
