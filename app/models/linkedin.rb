@@ -150,6 +150,7 @@ class Linkedin
           else
             wait
             @b.goto url
+            remove_ads
           end
         end
       end
