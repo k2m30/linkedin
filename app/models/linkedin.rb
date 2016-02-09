@@ -105,7 +105,7 @@ class Linkedin
     wait
     %w(ads-col responsive-nav-scrollable bottom-ads-container member-ads).each do |id|
       begin
-        @b.execute_script("document.getElementById('#{id}').remove();")
+        @b.execute_script("ad = document.getElementById('#{id}');if(!ad==null){ad.remove();}")
       rescue => e
         p e.message
       end
@@ -155,6 +155,7 @@ class Linkedin
           else
             wait
             @b.goto url
+            remove_ads
           end
         end
       end
@@ -183,8 +184,13 @@ end
 
 server = Server.new('http://127.0.0.1:3000')
 
-# server.users.each do |user|
-server.users.select { |u| u[:dir]==ARGV[0] }.each do |user|
+if ARGV.empty?
+  users = server.users
+else
+  users = server.users.select { |u| u[:dir]==ARGV[0] }
+end
+
+users.each do |user|
   crawler = Linkedin.new user, server
   crawler.wait
   url = server.get_next_url(user)
@@ -192,7 +198,7 @@ server.users.select { |u| u[:dir]==ARGV[0] }.each do |user|
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
-  p ['Finished', user[:dir], crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  p ['Finished', user[:dir], crawler.searches_made, ' searches made and ',crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
   break unless url
   crawler.destroy
 end
