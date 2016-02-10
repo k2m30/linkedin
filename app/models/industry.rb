@@ -13,7 +13,7 @@ class Industry < ActiveRecord::Base
     data['industries'].each_pair do |industry, index|
       ind = Industry.find_by(name: industry, index: index)
       if ind.nil?
-        Industry.create(name: industry, index: index, keywords: data['keywords'][industry])
+        Industry.create(name: industry, index: index, keywords: data['keywords'][industry]||'service')
       else
         ind.update(keywords: data['keywords'][industry])
       end
