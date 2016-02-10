@@ -1,1 +1,24 @@
-<%= form_tag  %>
+<%= form_tag search_path, method: :get do %>
+    <p>
+      <%= text_field_tag :query %>
+      <%= submit_tag 'Search' %>
+    </p>
+<% end %>
+
+<table>
+  <thead>
+  <th></th>
+  </thead>
+  <tbody>
+  <% @people.each do |person| %>
+      <tr>
+        <td><%= person.name %></td>
+        <td><%= person.position %></td>
+        <td><%= person.industry %></td>
+        <td><%= person.owner %></td>
+        <td><%= person.email %></td>
+        <td><%= person.notes.gsub(/{.*}/,'') if person.notes.present? %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

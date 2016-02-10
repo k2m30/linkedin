@@ -13,12 +13,39 @@
 
     <div>
       <table>
-        <% User.attribute_names[1..-1].each do |attribute| %>
-            <tr>
-              <td><%= f.label attribute %></td>
-              <td><%= f.text_field attribute.to_sym, size: 150 %></td>
-            </tr>
-        <% end %>
+        <tr>
+          <td>Dir</td>
+          <td><%= f.text_field :dir, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Industry</td>
+          <td><%= select_tag 'industry', options_from_collection_for_select(@industries, 'id', 'name', @user.industry.id) %></td>
+        </tr>
+        <tr>
+          <td>Login</td>
+          <td><%= f.text_field :login, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Password</td>
+          <td><%= f.text_field :password, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Proxy</td>
+          <td><%= f.text_field :proxy, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Comment</td>
+          <td><%= f.text_field :comment, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Linkedin profile</td>
+          <td><%= f.text_field :linkedin_profile, size: 150 %></td>
+        </tr>
+        <tr>
+          <td>Command string</td>
+          <td><%= f.text_field :command_str, size: 150 %></td>
+        </tr>
+
       </table>
     </div>
 

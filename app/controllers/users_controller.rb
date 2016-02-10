@@ -23,6 +23,7 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    @industries = Industry.all
   end
 
   # POST /users
@@ -45,8 +46,8 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+      if @user.update(user_params) && @user.update(industry: Industry.find(params[:industry]))
+        format.html { redirect_to @user, notice: 'user_params '}
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }

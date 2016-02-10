@@ -121,7 +121,11 @@ class Person < ActiveRecord::Base
 
   end
 
-  def search(query)
-    
+  def self.search(query)
+    if query.present?
+      where('name ilike :q or position ilike :q', q: "%#{query}%").limit(100)
+    else
+      all.limit(100)
+    end
   end
 end
