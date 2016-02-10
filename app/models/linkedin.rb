@@ -20,7 +20,7 @@ class Linkedin
   end
 
   def login_ok?
-    @b.text.include?('Business Services')
+    @b.text.include?('Business Services') || @b.text.include?('Save search')
   end
 
   def search_ok?
