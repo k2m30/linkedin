@@ -105,11 +105,7 @@ class Linkedin
     wait
     %w(ads-col responsive-nav-scrollable bottom-ads-container member-ads).each do |id|
       begin
-<<<<<<< HEAD
-        @b.execute_script("document.getElementById('#{id}').remove();")
-=======
-        @b.execute_script("ad = document.getElementById('#{id}');if(!ad==null){ad.remove();}")
->>>>>>> users_in_db
+        @b.execute_script("ad = document.getElementById('#{id}');if(!(ad==null)){ad.remove();}")
       rescue => e
         p e.message
       end
