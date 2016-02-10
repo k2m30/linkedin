@@ -1,9 +1,3 @@
-PATH
-  remote: ~/projects/tail
-  specs:
-    tail (0.1.6)
-      rails (>= 4.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -141,6 +135,8 @@ GEM
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
     sqlite3 (1.3.11)
+    tail (0.1.5)
+      rails (>= 4.0)
     thin (1.6.3)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0)
@@ -182,7 +178,7 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   spring
   sqlite3
-  tail!
+  tail
   thin
   turbolinks
   uglifier (>= 1.3.0)
