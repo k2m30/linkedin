@@ -10,7 +10,7 @@
   </thead>
 
   <tbody>
-    <% @users.each do |user| %>
+    <% @users.order(:dir).each do |user| %>
       <tr>
         <td><%= user.dir %></td>
         <td><%= link_to 'Edit', edit_user_path(user) %></td>

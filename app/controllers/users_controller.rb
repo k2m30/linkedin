@@ -46,8 +46,8 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if @user.update(user_params) && @user.update(industry: Industry.find(params[:industry]))
-        format.html { redirect_to @user, notice: 'user_params '}
+      if @user.update(user_params.merge! industry: Industry.find(params[:industry]))
+        format.html { redirect_to users_path, notice: 'Success. '}
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }
