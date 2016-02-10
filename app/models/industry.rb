@@ -15,7 +15,7 @@ class Industry < ActiveRecord::Base
       if ind.nil?
         Industry.create(name: industry, index: index, keywords: data['keywords'][industry]||'service')
       else
-        ind.update(keywords: data['keywords'][industry])
+        ind.update(keywords: data['keywords'][industry]||'service')
       end
     end
   end
