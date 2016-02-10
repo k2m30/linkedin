@@ -7,7 +7,15 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-
+<nav>
+  <ul>
+    <li><%= link_to 'Import', root_path %></li>
+    <li><%= link_to 'Industries', industries_path %></li>
+    <li><%= link_to 'Profiles', users_path %></li>
+    <li><%= link_to 'Database', search_path %></li>
+    <li><%= link_to 'Logs', tail_path, target: '_blank' %></li>
+  </ul>
+</nav>
 <%= yield %>
 
 </body>

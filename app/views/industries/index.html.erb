@@ -4,31 +4,28 @@
 
 <table>
   <thead>
-    <tr>
-      <th>Index</th>
-      <th>Keywords</th>
-      <th>Name</th>
-      <th colspan="3"></th>
-    </tr>
+  <tr>
+    <th>Index</th>
+    <th>Keywords</th>
+    <th>Name</th>
+    <th colspan="3"></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @industries.order(:name).each do |industry| %>
+  <% @industries.order(:name).each do |industry| %>
       <tr>
 
         <td><%= industry.name %></td>
         <td><%= industry.keywords %></td>
         <td><%= industry.index %></td>
         <td></td>
-        <td>
-          <table>
-            <tr><td><%= link_to 'Show', industry %></td></tr>
-            <tr><td><%= link_to 'Edit', edit_industry_path(industry) %></td></tr>
-            <tr><td><%= link_to 'Destroy', industry, method: :delete, data: { confirm: 'Are you sure?' } %></td></tr>
-          </table>
-        </td>
+        <td><%= link_to 'Edit', edit_industry_path(industry) %></td>
+        <td><%= link_to 'Destroy', industry, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+
+
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 

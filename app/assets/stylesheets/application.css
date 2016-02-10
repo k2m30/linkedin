@@ -13,3 +13,7 @@
  *= require_tree .
  *= require_self
  */
+
+td {
+    border-bottom: dashed 1px grey;
+}
