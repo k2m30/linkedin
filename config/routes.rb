@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :industries
+  resources :users
   root 'main#index'
 
   get 'person' => 'persons#person_exists'
@@ -8,4 +10,6 @@ Rails.application.routes.draw do
   get 'add_email' => 'persons#add_email_to_person'
   post 'import' => 'persons#import'
   get 'download' => 'main#download_base'
+
+  mount Tail::Engine, at: '/tail'
 end

@@ -1,4 +1,13 @@
 class PersonsController < ApplicationController
+  around_action :mute
+
+  def mute
+    old_level = Rails.logger.level
+    Rails.logger.level = Logger::FATAL
+    yield
+    Rails.logger.level = old_level
+  end
+
   def export
 
     respond_to do |format|
@@ -23,13 +32,10 @@ class PersonsController < ApplicationController
     render text: Person.exists?(params)
   end
 
-  # def add_person
-  #   Person.add_person(params)
-  #   render text: 'ok'
-  # end
-
   def get_next_url
-    render text: Keyword.get_next_url(params[:owner], params[:industry]) || 'false'
+    @user = User.find(params[:id])
+    render test: 'false' if @user.nil?
+    render text: @user.get_next_url || 'false'
   end
 
   def count
@@ -37,5 +43,9 @@ class PersonsController < ApplicationController
         ', Emails: ' << Person.where.not(email: nil).count.to_s <<
         ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s <<
         ', Notes: ' << Person.where.not(notes: nil).count.to_s
+  end
+
+  def logger
+    nil
   end
 end
