@@ -48,4 +48,8 @@ class PersonsController < ApplicationController
   def logger
     nil
   end
+
+  def search
+    @people = Person.search(params[:query])
+  end
 end

@@ -120,4 +120,8 @@ class Person < ActiveRecord::Base
     end
 
   end
+
+  def search(query)
+    
+  end
 end

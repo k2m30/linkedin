@@ -11,7 +11,12 @@ class Industry < ActiveRecord::Base
     data = File.open(file) { |yf| YAML::load(yf) }
 
     data['industries'].each_pair do |industry, index|
-      Industry.create(name: industry, index: index, keywords: data['keywords'][industry])
+      ind = Industry.find_by(name: industry, index: index)
+      if ind.nil?
+        Industry.create(name: industry, index: index, keywords: data['keywords'][industry])
+      else
+        ind.update(keywords: data['keywords'][industry])
+      end
     end
   end
 end
