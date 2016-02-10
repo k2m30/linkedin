@@ -8,7 +8,7 @@ require 'watir-webdriver'
 require_relative 'server'
 
 class Linkedin
-  attr_accessor :invitations, :pages_visited, :searches_made
+  attr_accessor :invitations, :pages_visited, :searches_made, :b
 
   def initialize(user, server)
     @wait_period = 0.2..2.2
@@ -36,6 +36,18 @@ class Linkedin
     true
   end
 
+  def enough_search_results?
+    search_result_selector = '.search-info p strong'
+    if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
+      p ['not enough search results', @b.element(css: search_result_selector).text, @b.url]
+      return false
+    end
+    if @b.text.include? 'Sorry, no results containing all your search terms were found'
+      return false
+    end
+    true
+  end
+
   def crawl(url)
     open_browser if @b.nil?
     return false unless login_ok?
@@ -45,23 +57,12 @@ class Linkedin
     @searches_made += 1
     @pages_visited += 1
 
-    search_result_selector = '.search-info p strong'
-
     return false unless search_ok?
+    return @server.get_next_url(@user) unless enough_search_results?
 
     remove_ads
 
     begin
-      if @b.text.include? 'Sorry, no results containing all your search terms were found'
-        # @b.close
-        return @server.get_next_url(@user)
-      end
-
-      if @b.element(css: search_result_selector).text.gsub(',', '').to_i <= 10
-        p ['not enough search results', @b.element(css: search_result_selector).text, url]
-        return @server.get_next_url(@user)
-      end
-
       url = @b.url
 
       wait_page_for_load
@@ -182,7 +183,7 @@ end
 
 
 
-server = Server.new('http://127.0.0.1:3000')
+server = Server.new#('http://127.0.0.1:3000')
 if ARGV.empty?
   users = server.users
 else
