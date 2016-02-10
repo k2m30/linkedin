@@ -103,7 +103,7 @@ class Linkedin
   protected
 
   def remove_ads
-    wait
+    # wait
     %w(ads-col responsive-nav-scrollable bottom-ads-container member-ads).each do |id|
       begin
         @b.execute_script("ad = document.getElementById('#{id}');if(!(ad==null)){ad.remove();}")

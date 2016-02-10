@@ -11,10 +11,10 @@ class User < ActiveRecord::Base
   end
 
   def get_next_url
-    keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry)
+    keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.id)
     if keyword.nil?
       multiply_keywords
-      keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry)
+      keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.id)
       return nil if keyword.nil?
     end
     keyword.update(passed: true)
