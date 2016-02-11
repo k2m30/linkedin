@@ -1,0 +1,44 @@
+<p><b>Next key:</b></p>
+<% if @next_key.nil? %>
+    <p><b>No more keys left</b></p>
+<% else %>
+    <table>
+      <thead>
+      <th>Position</th>
+      <th>Keyword</th>
+      <th>Industry</th>
+      </thead>
+      <tbody>
+      <tr>
+        <td><b><%= @next_key.position %></b></td>
+        <td><b><%= @next_key.keyword %></b></td>
+        <td><b><%= @industries.key(@next_key.industry.to_i) %></b></td>
+        <td><b><%= @next_key.passed%></b></td>
+      </tr>
+      </tbody>
+    </table>
+<% end %>
+
+
+<p><b><%= @user.get_next_url(false)%></b></p>
+<p><b>All keys</b></p>
+<table>
+  <thead>
+  <th>Position</th>
+  <th>Keyword</th>
+  <th>Industry</th>
+  <th>Passed?</th>
+  </thead>
+
+  <tbody>
+  <% @keywords.each do |k| %>
+      <tr>
+        <td><%= k.position %></td>
+        <td><%= k.keyword %></td>
+        <td><%= @industries.key(k.industry.to_i) %></td>
+        <td><%= k.passed %></td>
+      </tr>
+  <% end %>
+  </tbody>
+
+</table>

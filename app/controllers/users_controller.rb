@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords]
 
   # GET /users
   # GET /users.json
@@ -40,6 +40,12 @@ class UsersController < ApplicationController
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def keywords
+    @keywords = Keyword.where(owner: @user.dir).order(:passed, :position)
+    @industries = Industry.pluck(:name, :index).to_h
+    @next_key = @user.get_next_key
   end
 
   # PATCH/PUT /users/1

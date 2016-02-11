@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   resources :industries
-  resources :users
+  resources :users do
+    member do
+      get 'keywords'
+    end
+  end
   root 'main#index'
 
   get 'person' => 'persons#person_exists'

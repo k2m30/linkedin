@@ -10,16 +10,27 @@ class User < ActiveRecord::Base
                                     command_str: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-udd-profiles --user-data-dir=#{ENV['HOME']}/1chrm/#{users[key]['dir']}") }
   end
 
-  def get_next_url
+  def get_next_url(update=true)
     keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
     if keyword.nil?
       multiply_keywords
       keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
       return nil if keyword.nil?
     end
-    keyword.update(passed: true)
+    keyword.update(passed: true) if update
     "https://www.linkedin.com/vsearch/p?keywords=#{keyword.keyword.gsub(' ', '%20')}&title=#{keyword.position.gsub(' ', '%20')}&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691454119532620&orig=FCTD&openFacets=N,G,CC,I&f_N=S&f_I=#{self.industry.index}"
   end
+
+  def get_next_key
+    keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+    if keyword.nil?
+      multiply_keywords
+      keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+      return nil if keyword.nil?
+    end
+    keyword
+  end
+
 
   def multiply_keywords
     stale_keywords = Keyword.where(owner: self.dir, passed: false)
