@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
   end
 
   def next_keyword
-    Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i, position: '') || Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+    Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i, keyword: '') || Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
   end
 
 
