@@ -11,10 +11,10 @@ class User < ActiveRecord::Base
   end
 
   def get_next_url(update=true)
-    keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+    keyword = next_keyword
     if keyword.nil?
       multiply_keywords
-      keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+      keyword = next_keyword
       return nil if keyword.nil?
     end
     keyword.update(passed: true) if update
@@ -22,13 +22,16 @@ class User < ActiveRecord::Base
   end
 
   def get_next_key
-    keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+    keyword = next_keyword
     if keyword.nil?
       multiply_keywords
-      keyword = Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
-      return nil if keyword.nil?
+      keyword = next_keyword
     end
     keyword
+  end
+
+  def next_keyword
+    Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i, position: '') || Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
   end
 
 

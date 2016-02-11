@@ -1,14 +1,14 @@
 positions: Business owner, CEO, Chairman, CIO, Co-founder, CTO, CXO, Founder, Head of, Managing director, Owner, President, VP, Vice President
 
 keywords:
-  All: service,car,client
+  All: service,client
   Financial Services: banking ombudsman,banking services,compensation scheme,credit bank,fca regulated,finance sector, finance sector,financial advisor,financial authority,financial compensation,financial compensation scheme,financial ombudsman service,financial qualifications,financial services,fsa register,independent financial advisor,loan,prepaid financial services,trainee financial
-  Logistics and Supply Chain: bulk tracking,bulk tracking,cargo,cargo shipper,cargo tracking,cargo transportation,carrier local,carrier management,carriers,commercial vehicle,container,container transportation,fleet management,freight,freight broker,freight forwarding,haulage,haulage transportation,infrastructure transportation,local transportation,logistics,logistics industry,logistics management,oil management,ports transportation,railroad,retail supply,road haulage,road transport,road transportation,shipments,shipper,ships ports,ships transportation,supply chain,traffic information,transport,transport company,transportation,truck tracking,trucking,truckloads,velocity,vehicle rental
-  Transportation/Trucking/Railroad: bulk tracking,bulk tracking,cargo,cargo shipper,cargo tracking,cargo transportation,carrier local,carrier management,carriers,commercial vehicle,container,container transportation,fleet management,freight,freight broker,freight forwarding,haulage,haulage transportation,infrastructure transportation,local transportation,logistics,logistics industry,logistics management,oil management,ports transportation,railroad,retail supply,road haulage,road transport,road transportation,shipments,shipper,ships ports,ships transportation,supply chain,traffic information,transport,transport company,transportation,truck tracking,trucking,truckloads,velocity,vehicle rental
-  Oil & Energy: british gas electricity,cheap energy club,cheap gas,cheapest electric supplier,cheapest gas,electricity,electricity supplier,energy association,energy comparison,energy solutions,energy sources,energy sustainability,energy systems,fuel deals,gas supplier,geothermal energy,green energy,nuclear energy,renewable,renewable energy,renewable technology,solar energy,solar panel installation,solar panels,solar power,solar tech,southern electric,sun solar,sustain energy,sustainable energy,uswitch energy
+  Logistics and Supply Chain: cargo,carrier,cargo shipper,cargo tracking,cargo transportation,carrier local,carrier management,carriers,commercial vehicle,container,container transportation,fleet management,freight,freight broker,freight forwarding,haulage,haulage transportation,infrastructure transportation,local transportation,logistics,logistics industry,logistics management,oil management,ports transportation,railroad,retail supply,road haulage,road transport,road transportation,shipments,shipper,ships ports,ships transportation,supply chain,traffic information,transport,transport company,transportation,truck tracking,trucking,truckloads,velocity,vehicle rental
+  Transportation/Trucking/Railroad: tracking,shipper,cargo,logistics,transportation,vehicle,container,shipments,ships,supply chain,traffic,transport,trucking,truckloads,velocity,vehicle
+  Oil & Energy: gas,electricity,energy,supplier,source,fuel,solar,power,sustainable energy
+  Real Estate: property,housing,estate,mortgage,listings,estates,lettings,house,agent
 
 industries:
-  All: 0
   Accounting: 47
   Airlines/Aviation: 94
   Alternative Dispute Resolution: 120
