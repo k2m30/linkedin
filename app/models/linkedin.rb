@@ -190,6 +190,7 @@ else
   users = server.users.select { |u| u[:dir]==ARGV[0] }
 end
 
+p [users.size, users.first[:dir]]
 users.each do |user|
   crawler = Linkedin.new user, server
   crawler.wait
