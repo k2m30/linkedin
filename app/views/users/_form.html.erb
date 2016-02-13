@@ -19,7 +19,8 @@
         </tr>
         <tr>
           <td>Industry</td>
-          <td><%= select_tag 'industry', options_from_collection_for_select(@industries, 'id', 'name', @user.industry.id) %></td>
+          <%- id = @user.industry.nil? ? Industry.first.id : @user.industry.id  %>
+          <td><%= select_tag 'industry', options_from_collection_for_select(@industries, 'id', 'name', id ) %></td>
         </tr>
         <tr>
           <td>Login</td>

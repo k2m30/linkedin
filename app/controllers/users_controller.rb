@@ -19,6 +19,7 @@ class UsersController < ApplicationController
   # GET /users/new
   def new
     @user = User.new
+    @industries = Industry.all
   end
 
   # GET /users/1/edit
@@ -29,7 +30,7 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.merge! industry: Industry.find(params[:industry]))
 
     respond_to do |format|
       if @user.save
