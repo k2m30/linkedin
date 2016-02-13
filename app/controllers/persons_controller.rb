@@ -51,5 +51,9 @@ class PersonsController < ApplicationController
 
   def search
     @people = Person.search(params[:query])
+    @status =  'Total: ' << Person.count.to_s <<
+        ', Emails: ' << Person.where.not(email: nil).count.to_s <<
+        ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s <<
+        ', Notes: ' << Person.where.not(notes: nil).count.to_s
   end
 end
