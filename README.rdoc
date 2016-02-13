@@ -27,7 +27,10 @@ chmod +x restart.sh
 
 * restore db
 
-psql dbname < infile
+rake db:drop
+rake db:create
+
+psql linkedin < ~/Downloads/db20160213210815.dump
 
 
 * Migrate db
