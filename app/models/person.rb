@@ -89,7 +89,7 @@ class Person < ActiveRecord::Base
     end
   end
 
-  def self.import(file)
+  def self.import(file, owner_param, passed_to_param)
     begin
       CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
         name = row['First Name'] || '' << ' ' << row['Last Name'] || ''
@@ -98,15 +98,16 @@ class Person < ActiveRecord::Base
 
         people = Person.where(name: name)
         if people.empty?
-          Person.create(name: name, position: position, email: email)
+          Person.create(name: name, position: position, email: email, owner: owner_param, passed_to: passed_to_param)
           p ['create', name]
         else
           if people.size == 1
-            people.first.update(email: email) if people.first.email.nil?
+            person = people.first
+            person.import_update(email, owner_param, passed_to_param)
           else
             people.each do |person|
               if person.position.include?(row['Job Title'] || '') && person.position.include?(row['Company'] || '')
-                person.update(email: email) if person.email.nil?
+                person.import_update(email, owner_param, passed_to_param)
                 p ['update', person]
               end
             end
@@ -119,6 +120,15 @@ class Person < ActiveRecord::Base
       p ['end']
     end
 
+  end
+
+  def import_update(email_param, owner_param, passed_to_param)
+    update_hash = {}
+    update_hash.merge!({email: email_param}) if email_param.present? && email.nil?
+    update_hash.merge!({owner: owner_param}) if owner_param.present? && owner.nil? && User.owner_exists?(owner)
+    update_hash.merge!({passed_to: passed_to_param}) if passed_to_param.present? && passed_to.nil?
+
+    update(update_hash) unless update_hash.empty?
   end
 
   def self.search(query)

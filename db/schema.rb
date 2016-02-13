@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160206104508) do
+ActiveRecord::Schema.define(version: 20160213141822) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20160206104508) do
     t.text     "notes"
     t.string   "owner"
     t.datetime "created_at",  default: '2016-01-30 00:00:31'
+    t.string   "passed_to"
   end
 
   add_index "people", ["industry"], name: "index_people_on_industry", using: :btree

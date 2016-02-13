@@ -34,6 +34,9 @@ class User < ActiveRecord::Base
     Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i, keyword: '') || Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
   end
 
+  def self.owner_exists?(owner)
+    find_by(dir: owner).nil? ? false : true
+  end
 
   def multiply_keywords
     stale_keywords = Keyword.where(owner: self.dir, passed: false)

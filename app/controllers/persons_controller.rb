@@ -10,7 +10,7 @@ class PersonsController < ApplicationController
   end
 
   def import
-    Person.import params[:file]
+    Person.import params[:file], params[:owner], params[:passed_to]
     redirect_to root_path, notice: 'Imported'
   end
 
@@ -34,10 +34,6 @@ class PersonsController < ApplicationController
         ', Emails: ' << Person.where.not(email: nil).count.to_s <<
         ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s <<
         ', Notes: ' << Person.where.not(notes: nil).count.to_s
-  end
-
-  def logger
-    nil
   end
 
   def search
