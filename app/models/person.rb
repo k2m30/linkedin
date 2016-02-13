@@ -92,8 +92,14 @@ class Person < ActiveRecord::Base
   def self.import(file, owner_param, passed_to_param)
     begin
       CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
-        name = row['First Name'] || '' << ' ' << row['Last Name'] || ''
-        position = row['Job Title'] || '' << ' at ' << row['Company'] || ''
+        first_name = row['First Name'] || ''
+        last_name = row['Last Name'] || ''
+        name = first_name + ' ' + last_name
+
+        job_title = row['Job Title'] || ''
+        company = row['Company'] || ''
+        position = job_title + ' at ' + company
+
         email = row['E-mail Address']
 
         people = Person.where(name: name)
@@ -106,7 +112,7 @@ class Person < ActiveRecord::Base
             person.import_update(email, owner_param, passed_to_param)
           else
             people.each do |person|
-              if person.position.include?(row['Job Title'] || '') && person.position.include?(row['Company'] || '')
+              if person.position.include?(job_title) && person.position.include?(company)
                 person.import_update(email, owner_param, passed_to_param)
                 p ['update', person]
               end
@@ -135,7 +141,7 @@ class Person < ActiveRecord::Base
     if query.present?
       where('name ilike :q or position ilike :q', q: "%#{query}%").limit(100)
     else
-      all.limit(100)
+      limit 100
     end
   end
 end

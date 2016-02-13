@@ -1,10 +1,5 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
 * Legacy connections
 
 a = setInterval(function () {
@@ -29,3 +24,14 @@ chmod +x restart.sh
 ./restart.sh
 
 * nohup thin start -a 0.0.0.0 > /dev/null 2>&1 &
+
+* restore db
+
+psql dbname < infile
+
+
+* Migrate db
+
+gem install sequel
+
+sequel -C sqlite://db/development.sqlite3 postgres://deployer:q@localhost/linkedin
