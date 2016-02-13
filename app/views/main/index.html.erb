@@ -1,4 +1,12 @@
 <%= form_tag import_path, multipart: true do %>
-    <%= file_field_tag :file %>
-    <%= submit_tag 'Import' %>
+    <p>
+      <%= label_tag :file %>
+      <%= file_field_tag :file %></p>
+    <p>
+      <%= label_tag :owner %>
+      <%= text_field_tag :owner %></p>
+    <p>
+      <%= label_tag :passed_to %>
+      <%= text_field_tag :passed_to %></p>
+    <p><%= submit_tag 'Import' %></p>
 <% end %>
