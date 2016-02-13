@@ -20,17 +20,23 @@ class Linkedin
   end
 
   def login_ok?
-    @b.text.include?('Business Services') || @b.text.include?('Save search')
+    text = @b.text
+    text.include?('Business Services') || text.include?('Save search')
   end
 
   def search_ok?
-    if @b.text.include? 'Due to excessive searching, your people search results are limited'
+    text = @b.text
+    if text.include? 'Due to excessive searching, your people search results are limited'
       p 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
       return false
     end
 
-    if @b.text.include? 'We have detected an unusually high number of page views from your account'
+    if text.include? 'We have detected an unusually high number of page views from your account'
       p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
+      return false
+    end
+    if text.include? 'you’ve reached the commercial use limit on search'
+      p 'You’ve reached the commercial use limit on search.'
       return false
     end
     true
@@ -184,18 +190,24 @@ end
 
 
 server = Server.new#('http://127.0.0.1:3000')
+user_name = nil
+invitation_limit = nil
+start_url = nil
 if ARGV.empty?
   users = server.users
 else
-  users = server.users.select { |u| u[:dir]==ARGV[0] }
+  user_name = ARGV[0]
+  invitation_limit = ARGV[1]
+  start_url = ARGV[2]
+  users = server.users.select { |u| u[:dir] == user_name }
 end
 
-p [users.size, users.first[:dir]]
+p [users.size, user_name, invitation_limit, start_url]
 users.each do |user|
   crawler = Linkedin.new user, server
   crawler.wait
-  url = server.get_next_url(user)
-  while crawler.invitations < 350 && crawler.pages_visited < 80 && crawler.searches_made < 30 && url do
+  url = start_url || server.get_next_url(user)
+  while crawler.invitations < invitation_limit && crawler.pages_visited < invitation_limit/4 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
