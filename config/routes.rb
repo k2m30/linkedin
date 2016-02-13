@@ -1,8 +1,15 @@
 Rails.application.routes.draw do
+
+
   resources :industries
   resources :users do
     member do
       get 'keywords'
+    end
+    resources :keywords, only: [] do
+      member do
+        get 'revert'
+      end
     end
   end
   root 'main#index'

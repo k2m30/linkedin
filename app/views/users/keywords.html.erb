@@ -14,7 +14,7 @@
         <td><b><%= @next_key.position %></b></td>
         <td><b><%= @next_key.keyword %></b></td>
         <td><b><%= @industries.key(@next_key.industry.to_i) %></b></td>
-        <td><b><%= @next_key.passed%></b></td>
+        <td><b><%= @next_key.passed %></b></td>
       </tr>
       </tbody>
     </table>
@@ -37,7 +37,9 @@
         <td><%= k.position %></td>
         <td><%= k.keyword %></td>
         <td><%= @industries.key(k.industry.to_i) %></td>
-        <td><%= k.passed %></td>
+        <td id="<%= k.id %>"><%= k.passed %></td>
+        <td><%= link_to 'Revert', revert_user_keyword_path(@user, k)%></td>
+          <!--, remote: true, onclick: "document.getElementById('#{k.id}').textContent = '#{!k.passed?}';" %></td>-->
       </tr>
   <% end %>
   </tbody>
