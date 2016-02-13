@@ -1,13 +1,4 @@
 class PersonsController < ApplicationController
-  around_action :mute
-
-  def mute
-    old_level = Rails.logger.level
-    Rails.logger.level = Logger::FATAL
-    yield
-    Rails.logger.level = old_level
-  end
-
   def export
 
     respond_to do |format|

@@ -92,8 +92,8 @@ class Person < ActiveRecord::Base
   def self.import(file)
     begin
       CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
-        name = row['First Name'] << ' ' << row['Last Name']
-        position = row['Job Title'] << ' at ' << row['Company']
+        name = row['First Name'] || '' << ' ' << row['Last Name'] || ''
+        position = row['Job Title'] || '' << ' at ' << row['Company'] || ''
         email = row['E-mail Address']
 
         people = Person.where(name: name)
@@ -105,7 +105,7 @@ class Person < ActiveRecord::Base
             people.first.update(email: email) if people.first.email.nil?
           else
             people.each do |person|
-              if person.position.include?(row['Job Title']) && person.position.include?(row['Company'])
+              if person.position.include?(row['Job Title'] || '') && person.position.include?(row['Company'] || '')
                 person.update(email: email) if person.email.nil?
                 p ['update', person]
               end
