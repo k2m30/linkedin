@@ -17,6 +17,10 @@ class Server
     JSON.parse Net::HTTP.get(uri), symbolize_names: true
   end
 
+  def remote?
+    (@base_address.include?('127.0.0.1') || @base_address.include?('localhost')) ? false : true
+  end
+
   def get_next_url(user)
     id = {id: user[:id]}
     uri = URI("#{@base_address}/next_url")

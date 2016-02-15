@@ -17,6 +17,7 @@ class Linkedin
     @searches_made = 0
     @user = user
     @server = server
+    @logger = Logger.new('log/linkedin.log')
   end
 
   def login_ok?
@@ -142,9 +143,11 @@ class Linkedin
       location = location.exist? ? location.text : ''
 
       begin
-        linkedin_id = URI(item.a(css: 'a.primary-action-button.label').href).query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
+        person_link = URI(item.a(css: 'a.primary-action-button.label').href)
+        linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
       rescue
-        linkedin_id = nil
+        @logger.error("No linkedin_id: #{person_link} - #{name} #{position}")
+        next
       end
 
       person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
@@ -154,7 +157,7 @@ class Linkedin
         # button = item.element(css: 'a.primary-action-button')
         button = item.element(text: 'Connect')
         if button.exist?
-          button.click
+          button.click if @server.remote?
           wait
 
           if @b.url == url
@@ -188,7 +191,6 @@ class Linkedin
 end
 
 
-
 server = Server.new('http://176.31.71.89:3000')
 user_name = nil
 invitation_limit = nil
@@ -197,7 +199,7 @@ if ARGV.empty?
   users = server.users
 else
   user_name = ARGV[0]
-  invitation_limit = ARGV[1]
+  invitation_limit = ARGV[1].to_i
   start_url = ARGV[2]
   users = server.users.select { |u| u[:dir] == user_name }
 end

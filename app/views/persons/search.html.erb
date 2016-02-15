@@ -1,8 +1,15 @@
 <%= form_tag search_path, method: :get do %>
     <p>
       <%= text_field_tag :query %>
-      <%= submit_tag 'Search' %>
+      <%= label_tag :query %>
     </p>
+    <p><%= text_field_tag :passed_to %>
+      <%= label_tag :passed_to %>
+    </p>
+    <p><%= select_tag :industry, options_from_collection_for_select(Industry.all.order(:name), 'id', 'name'), include_blank: true %>
+      <%= label_tag :industry %>
+    </p>
+    <p><%= submit_tag 'Search' %></p>
 <% end %>
 <p>
   <%= @status %>
@@ -19,7 +26,7 @@
         <td><%= person.industry %></td>
         <td><%= person.owner %></td>
         <td><%= person.email %></td>
-        <td><%= person.notes.gsub(/{.*}/,'') if person.notes.present? %></td>
+        <td><%= person.notes.gsub(/{.*}/, '') if person.notes.present? %></td>
       </tr>
   <% end %>
   </tbody>

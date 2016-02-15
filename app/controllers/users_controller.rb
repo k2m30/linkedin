@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords]
 
   # GET /users
   # GET /users.json
@@ -41,6 +41,11 @@ class UsersController < ApplicationController
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def reset_keywords
+    @keywords = Keyword.where(owner: @user.dir).each{|k| k.update(passed: false)}
+    redirect_to keywords_user_path(@user)
   end
 
   def keywords

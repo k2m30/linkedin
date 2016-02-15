@@ -1,16 +1,10 @@
 require 'csv'
 
 class Person < ActiveRecord::Base
-  # def self.import(file = '../2ndconnections.csv')
-  #   records = CSV.read(file)
-  #
-  #   records.uniq.each do |record|
-  #     Person.create(name: record[0], position: record[1], industry: record[2], location: record[3])
-  #   end
-  # end
+  class NoLinkedinIdException < StandardError; end
 
-  def self.add_user(search_hash)
-    Person.create(name: search_hash[:name], position: search_hash[:position], industry: search_hash[:industry],
+  def self.add_person(search_hash)
+    Person.create!(name: search_hash[:name], position: search_hash[:position], industry: search_hash[:industry],
                   location: search_hash[:location], linkedin_id: search_hash[:linkedin_id], owner: search_hash[:owner], created_at: Time.now)
   end
 
@@ -58,26 +52,23 @@ class Person < ActiveRecord::Base
   end
 
   def self.exists?(params)
-    search_hash = {}
-    search_hash[:name] = params[:name] if params[:name].present?
-    search_hash[:position] = params[:position] if params[:position].present?
-    search_hash[:industry] = params[:industry] if params[:industry].present?
-    search_hash[:location] = params[:location] if params[:location].present?
-    search_hash[:owner] = params[:owner] if params[:owner].present?
+    raise NoLinkedinIdException.new(params) if params[:linkedin_id].nil?
 
+    person = Person.find_by(linkedin_id: params[:linkedin_id])
+    if person.present?
+      return true
+    else
+      person = {}
+      person[:name] = params[:name] if params[:name].present?
+      person[:position] = params[:position] if params[:position].present?
+      person[:industry] = params[:industry] if params[:industry].present?
+      person[:location] = params[:location] if params[:location].present?
+      person[:owner] = params[:owner] if params[:owner].present?
+      person[:linkedin_id] = params[:linkedin_id] if params[:linkedin_id].present?
 
-    return false if search_hash.empty?
-    user = Person.find_by search_hash
-    if user.present? && user.linkedin_id.nil? && params[:linkedin_id].present?
-      user.update linkedin_id: params[:linkedin_id]
+      add_person person
+      return false
     end
-
-    if search_hash.size == 5 && user.nil? && params[:linkedin_id].present?
-      search_hash[:linkedin_id] = params[:linkedin_id]
-      add_user search_hash
-    end
-
-    user.present?
   end
 
   def self.export_to_csv
@@ -114,12 +105,10 @@ class Person < ActiveRecord::Base
             people.each do |person|
               if person.position.include?(job_title) && person.position.include?(company)
                 person.import_update(email, owner_param, passed_to_param)
-                p ['update', person]
+                break
               end
             end
           end
-          # Frank		Garcia		twotonlogistics@gmail.com	Two Ton Logistics Ltd		Owner/Managing Director
-          # Frank Garcia	Owner/Director at Two Ton Logistics Ltd	Transportation/Trucking/Railroad	London, United Kingdom	27726532
         end
       end
     rescue CSV::MalformedCSVError
@@ -131,9 +120,8 @@ class Person < ActiveRecord::Base
   def import_update(email_param, owner_param, passed_to_param)
     update_hash = {}
     update_hash.merge!({email: email_param}) if email_param.present? && email.nil?
-    update_hash.merge!({owner: owner_param}) if owner_param.present? && owner.nil? && User.owner_exists?(owner)
+    update_hash.merge!({owner: owner_param}) if owner_param.present? && owner.nil? && User.owner_exists?(owner_param)
     update_hash.merge!({passed_to: passed_to_param}) if passed_to_param.present? && passed_to.nil?
-
     update(update_hash) unless update_hash.empty?
   end
 

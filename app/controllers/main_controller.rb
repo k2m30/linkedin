@@ -1,6 +1,6 @@
 class MainController < ApplicationController
   def index
-    @owners = User.all
+    @owners = User.all.order(:dir)
   end
 
   def download_base
