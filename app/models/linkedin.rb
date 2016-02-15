@@ -6,6 +6,7 @@ require 'net/http'
 require 'watir'
 require 'watir-webdriver'
 require_relative 'server'
+require 'logger'
 
 class Linkedin
   attr_accessor :invitations, :pages_visited, :searches_made, :b
