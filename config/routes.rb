@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :users do
     member do
       get 'keywords'
+      get 'reset_keywords'
     end
     resources :keywords, only: [] do
       member do

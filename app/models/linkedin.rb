@@ -37,7 +37,7 @@ class Linkedin
       p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
       return false
     end
-    if text.include? 'you’ve reached the commercial use limit on search'
+    if text.include? 'reached the commercial use limit on search'
       p 'You’ve reached the commercial use limit on search.'
       return false
     end
@@ -88,11 +88,9 @@ class Linkedin
 
     rescue => e
       p e.message
-      pp e.backtrace[0..4]
+      pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
       url = @b.url
-      # byebug
       unless @b.text.include?('Security Verification') #wait for captcha
-        # @b.close
         return url
       end
     end while @b.text.include?('Next >')
@@ -147,7 +145,7 @@ class Linkedin
         person_link = URI(item.a(css: 'a.primary-action-button.label').href)
         linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
       rescue
-        @logger.error("No linkedin_id: #{person_link} - #{name} #{position}")
+        @logger.error("No linkedin_id: #{item}")
         next
       end
 
