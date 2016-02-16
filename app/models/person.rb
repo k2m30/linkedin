@@ -91,13 +91,12 @@ class Person < ActiveRecord::Base
         first_name = row['First Name'] || ''
         last_name = row['Last Name'] || ''
         name = first_name + ' ' + last_name
-
+        name = row['Full Name'] if row['First Name'].nil? and row['Last Name'].nil?
         job_title = row['Job Title'] || ''
         company = row['Company'] || ''
         position = job_title + ' at ' + company
 
         email = row['E-mail Address']
-
         people = Person.where(name: name)
         if people.empty?
           Person.create(name: name, position: position, email: email, owner: owner_param, passed_to: passed_to_param)
