@@ -87,6 +87,7 @@ class Linkedin
       end
 
     rescue => e
+      p e
       p e.message
       pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
       url = @b.url
@@ -145,7 +146,8 @@ class Linkedin
         person_link = URI(item.a(css: 'a.primary-action-button.label').href)
         linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
       rescue
-        @logger.error("No linkedin_id: #{item}")
+        @logger.error("No linkedin_id: #{item.html}")
+        byebug
         next
       end
 
@@ -156,7 +158,7 @@ class Linkedin
         # button = item.element(css: 'a.primary-action-button')
         button = item.element(text: 'Connect')
         if button.exist?
-          button.click if @server.remote?
+          # button.click if @server.remote?
           wait
 
           if @b.url == url
@@ -208,6 +210,7 @@ users.each do |user|
   crawler = Linkedin.new user, server
   crawler.wait
   url = start_url || server.get_next_url(user)
+  invitation_limit || 350
   while crawler.invitations < invitation_limit && crawler.pages_visited < invitation_limit/4 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']

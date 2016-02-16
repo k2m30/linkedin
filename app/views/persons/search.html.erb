@@ -3,14 +3,23 @@
       <%= text_field_tag :query, params[:query] %>
       <%= label_tag :query %>
     </p>
-    <p><%= text_field_tag :passed_to, params[:passed_to] %>
+    <p>
+      <%= text_field_tag :passed_to, params[:passed_to] %>
       <%= label_tag :passed_to %>
     </p>
-    <p><%= select_tag :industry, options_from_collection_for_select(Industry.all.order(:name), 'id', 'name', params[:industry]), include_blank: true %>
+    <p>
+      <%= select_tag :industry, options_from_collection_for_select(Industry.all.order(:name), 'id', 'name', params[:industry]), include_blank: true %>
       <%= label_tag :industry %>
+    </p>
+    <p>
+      <%= select_tag :owner, options_from_collection_for_select(User.all.order(:dir), 'dir', 'dir', params[:owner]), include_blank: true %>
+      <%= label_tag :owner %>
     </p>
     <p><%= submit_tag 'Search' %></p>
 <% end %>
+<p>
+  <%= "#{@size || 0} results found." %>
+</p>
 <p>
   <%= @status %>
 </p>

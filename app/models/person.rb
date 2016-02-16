@@ -128,15 +128,17 @@ class Person < ActiveRecord::Base
   def self.search(params)
     industry_id = params[:industry]
     passed_to = params[:passed_to]
+    owner = params[:owner]
     search_hash = {}
     search_hash.merge!(industry: Industry.find(industry_id).name) unless industry_id.blank?
     search_hash.merge!(passed_to: passed_to) unless passed_to.blank?
+    search_hash.merge!(owner: owner) unless owner.blank?
 
     people = Person.where(search_hash)
     query = params[:query]
     if query.present?
       people = people.where('name ilike :q or position ilike :q', q: "%#{query}%")
     end
-    people.limit 100
+    return people.size, people.limit(100)
   end
 end
