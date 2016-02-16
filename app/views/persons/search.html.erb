@@ -19,6 +19,7 @@
 <% end %>
 <p>
   <%= "#{@size || 0} results found." %>
+  <%= link_to '(Export)', export_path(params: params, format: :csv) %>
 </p>
 <p>
   <%= @status %>

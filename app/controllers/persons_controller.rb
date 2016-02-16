@@ -5,7 +5,9 @@ class PersonsController < ApplicationController
       format.html do
         @people = Person.where.not(notes: nil).limit(10)
       end
-      format.csv { send_data Person.export_to_csv }
+      format.csv do
+        send_data Person.export_to_csv(params)
+      end
     end
   end
 
@@ -38,6 +40,7 @@ class PersonsController < ApplicationController
 
   def search
     @size, @people = Person.search(params)
+    @people = @people.limit(100)
     @status =  'Total: ' << Person.count.to_s <<
         ', Emails: ' << Person.where.not(email: nil).count.to_s <<
         ', Linkedin IDs: ' << Person.where.not(linkedin_id: nil).count.to_s <<

@@ -20,7 +20,6 @@ class Person < ActiveRecord::Base
 
     people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: 'Transportation/Trucking/Railroad').limit(n)
     people.each do |p|
-      p p
       next if p.name.split(' ').size != 2
       first, last = p.name.split(' ')
 
@@ -48,6 +47,8 @@ class Person < ActiveRecord::Base
         email = emails.first
       end
       p.update(email: email, notes: notes)
+      p [p.name, p.email]
+      p notes
     end
   end
 
@@ -71,10 +72,14 @@ class Person < ActiveRecord::Base
     end
   end
 
-  def self.export_to_csv
+  def self.export_to_csv(params)
+    size, people = self.search(params)
+    if people.nil?
+      people = Person.where.not(linkedin_id: nil)
+    end
     CSV.generate do |csv|
       csv << column_names
-      Person.where.not(linkedin_id: nil).each do |person|
+      people.each do |person|
         csv << person.attributes.values_at(*column_names)
       end
     end
@@ -139,6 +144,6 @@ class Person < ActiveRecord::Base
     if query.present?
       people = people.where('name ilike :q or position ilike :q', q: "%#{query}%")
     end
-    return people.size, people.limit(100)
+    return people.size, people
   end
 end
