@@ -1,11 +1,12 @@
 require 'csv'
 
 class Person < ActiveRecord::Base
-  class NoLinkedinIdException < StandardError; end
+  class NoLinkedinIdException < StandardError;
+  end
 
   def self.add_person(search_hash)
     Person.create!(name: search_hash[:name], position: search_hash[:position], industry: search_hash[:industry],
-                  location: search_hash[:location], linkedin_id: search_hash[:linkedin_id], owner: search_hash[:owner], created_at: Time.now)
+                   location: search_hash[:location], linkedin_id: search_hash[:linkedin_id], owner: search_hash[:owner], created_at: Time.now)
   end
 
   def self.add_email_to_person(linkedin_id, email)
@@ -36,7 +37,7 @@ class Person < ActiveRecord::Base
         next
       end
       emails = response.person.emails.map(&:address)
-      emails.delete_if{|e| e.include? 'facebook'}
+      emails.delete_if { |e| e.include? 'facebook' }
 
       # byebug
       notes = response.person.to_hash.to_s
@@ -97,6 +98,13 @@ class Person < ActiveRecord::Base
         position = job_title + ' at ' + company
 
         email = row['E-mail Address']
+
+        person = Person.find_by(email: email)
+        if person.present?
+          person.import_update(email, owner_param, passed_to_param)
+          next
+        end
+
         people = Person.where(name: name)
         if people.empty?
           Person.create(name: name, position: position, email: email, owner: owner_param, passed_to: passed_to_param)
