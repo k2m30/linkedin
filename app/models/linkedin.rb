@@ -12,7 +12,7 @@ class Linkedin
   attr_accessor :invitations, :pages_visited, :searches_made, :b
 
   def initialize(user, server)
-    @wait_period = 0.2..2.2
+    @wait_period = 1.2..3.2
     @invitations = 0
     @pages_visited = 0
     @searches_made = 0
@@ -131,44 +131,52 @@ class Linkedin
     person_selector = '.people.result'
     minus_words = %w(marketing sales soft hr assistant development coach recruit)
     @b.elements(css: person_selector).to_a.each_index do |i|
-      item = @b.elements(css: person_selector)[i]
-      name = item.element(css: '.main-headline')
-      position = item.element(css: '.bd .description')
-      industry = item.element(css: '.separator~ dd')
-      location = item.element(css: '#results bdi')
-
-      name = name.exist? ? name.text : ''
-      position = position.exist? ? position.text : ''
-      industry = industry.exist? ? industry.text : ''
-      location = location.exist? ? location.text : ''
-
       begin
-        person_link = URI(item.a(css: 'a.primary-action-button.label').href)
-        linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
-      rescue
-        @logger.error("No linkedin_id: #{item.html}")
-        byebug
-        next
-      end
+        item = @b.elements(css: person_selector)[i]
+        name = item.element(css: '.main-headline')
+        position = item.element(css: '.bd .description')
+        industry = item.element(css: '.separator~ dd')
+        location = item.element(css: '#results bdi')
 
-      person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
+        name = name.exist? ? name.text : ''
+        position = position.exist? ? position.text : ''
+        industry = industry.exist? ? industry.text : ''
+        location = location.exist? ? location.text : ''
 
-      unless @server.person_exists?(person)
-        next if minus_words.map { |a| position.downcase.include? a }.include? true
-        # button = item.element(css: 'a.primary-action-button')
-        button = item.element(text: 'Connect')
-        if button.exist?
-          # button.click if @server.remote?
-          wait
+        begin
+          person_link = URI(item.a(css: 'a.primary-action-button.label').href)
+          linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
+        rescue
+          @logger.error("No linkedin_id: #{item.html}")
+          byebug
+          next
+        end
 
-          if @b.url == url
-            @invitations += 1
-          else
+        person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
+
+        unless @server.person_exists?(person)
+          next if minus_words.map { |a| position.downcase.include? a }.include? true
+          # button = item.element(css: 'a.primary-action-button')
+          button = item.element(text: 'Connect')
+          if button.exist?
+            button.click if @server.remote?
             wait
-            @b.goto url
-            remove_ads
+
+            if @b.url == url
+              @invitations += 1
+            else
+              wait
+              @b.goto url
+              remove_ads
+            end
           end
         end
+      rescue Selenium::WebDriver::Error::UnknownError => e
+        p e.message
+        pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+      rescue Watir::Exception::UnknownObjectException => e
+        p e.message
+        pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
       end
     end
   end
