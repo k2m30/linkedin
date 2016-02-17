@@ -73,9 +73,21 @@ class Person < ActiveRecord::Base
     end
   end
 
+  def self.cleanup
+    where(linkedin_id: nil).destroy_all
+    where.not(email: nil).each do |p|
+      people = where(email: p.email)
+      next if people.size == 1
+
+      people[1..-1].each do |d|
+        d.destroy
+      end
+    end
+  end
+
   def self.export_to_csv(params)
     size, people = self.search(params)
-    if people.nil?
+    if people.nil? || people.empty?
       people = Person.where.not(linkedin_id: nil)
     end
     CSV.generate do |csv|
@@ -92,12 +104,12 @@ class Person < ActiveRecord::Base
         first_name = row['First Name'] || ''
         last_name = row['Last Name'] || ''
         name = first_name + ' ' + last_name
-        name = row['Full Name'] if row['First Name'].nil? and row['Last Name'].nil?
+        name = row['Full Name'] || row['name'] if row['First Name'].nil? and row['Last Name'].nil?
         job_title = row['Job Title'] || ''
         company = row['Company'] || ''
         position = job_title + ' at ' + company
 
-        email = row['E-mail Address']
+        email = row['E-mail Address'] || row['email']
 
         person = Person.find_by(email: email)
         if person.present?
@@ -105,7 +117,7 @@ class Person < ActiveRecord::Base
           next
         end
 
-        people = Person.where(name: name)
+        people = Person.where('name ilike :q', q: "%#{name}%")
         if people.empty?
           Person.create(name: name, position: position, email: email, owner: owner_param, passed_to: passed_to_param)
           p ['create', name]
