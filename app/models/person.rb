@@ -48,8 +48,7 @@ class Person < ActiveRecord::Base
         email = emails.first
       end
       p.update(email: email, notes: notes)
-      p [p.name, p.email]
-      p notes
+      puts [p.name, p.email]
     end
   end
 
