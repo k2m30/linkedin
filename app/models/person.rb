@@ -16,10 +16,10 @@ class Person < ActiveRecord::Base
     person
   end
 
-  def self.pipl_research(n=100)
+  def self.pipl_research(industry='Transportation/Trucking/Railroad', n=100)
     require 'pipl'
 
-    people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: 'Transportation/Trucking/Railroad').limit(n)
+    people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: industry).limit(n)
     people.each do |p|
       next if p.name.split(' ').size != 2
       first, last = p.name.split(' ')
