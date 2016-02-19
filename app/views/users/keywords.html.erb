@@ -24,6 +24,7 @@
 <p><b><%= @user.get_next_url(false)%></b></p>
 <p><b>All keys</b></p>
 <p><%= link_to 'Reset all keywords', reset_keywords_user_path(@user) %></p>
+<p><%= link_to 'Multiply keywords', multiply_keywords_user_path(@user) %></p>
 <table>
   <thead>
   <th>Position</th>

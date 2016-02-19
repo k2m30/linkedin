@@ -3,7 +3,7 @@ class Industry < ActiveRecord::Base
   has_many :users
 
   def self.positions
-    'Business owner, CEO, Chairman, CIO, Co-founder, CTO, CXO, Founder, Head of, Managing director, Owner, President, VP, Vice President'
+    'Business owner, LION, Director, CEO, Chairman, CIO, Co-founder, COO, CTO, CXO, Founder, Head of, Manager, Managing director, Owner, President, VP, Vice President'
   end
 
   def self.load_industries(file_name = '/config/users/keywords.yml')

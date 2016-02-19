@@ -18,6 +18,8 @@ class Person < ActiveRecord::Base
 
   def self.pipl_research(industry='Transportation/Trucking/Railroad', n=100)
     require 'pipl'
+    processed = 0
+    emails_before = Person.where.not(linkedin_id: nil).where(notes: nil, email: [nil,''], industry: industry).size
 
     people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: industry).limit(n)
     people.each do |p|
@@ -49,7 +51,11 @@ class Person < ActiveRecord::Base
       end
       p.update(email: email, notes: notes)
       puts [p.name, p.email]
+      processed+=1
     end
+
+    emails_after = Person.where.not(linkedin_id: nil).where(notes: nil, email: [nil,''], industry: industry).size
+    [processed, emails_after-emails_before]
   end
 
   def self.exists?(params)

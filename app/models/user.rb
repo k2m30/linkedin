@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
   end
 
   def next_keyword
-    Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i, keyword: '') || Keyword.find_by(owner: self.dir, passed: false, industry: self.industry.index.to_i)
+    Keyword.where(owner: self.dir, passed: false, industry: self.industry.index.to_i, keyword: '').sample || Keyword.where(owner: self.dir, passed: false, industry: self.industry.index.to_i).sample
   end
 
   def self.owner_exists?(owner)
@@ -39,8 +39,7 @@ class User < ActiveRecord::Base
   end
 
   def multiply_keywords
-    stale_keywords = Keyword.where(owner: self.dir, passed: false)
-    stale_keywords.destroy_all unless stale_keywords.blank?
+    Keyword.where(owner: self.dir).destroy_all
 
     positions = Industry.positions.split(', ')
 

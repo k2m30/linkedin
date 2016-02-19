@@ -74,7 +74,7 @@ class Linkedin
       url = @b.url
 
       wait_page_for_load
-      go_through_links(url)
+      return false unless go_through_links(url)
       wait
       @pages_visited += 1
 
@@ -130,6 +130,7 @@ class Linkedin
   def go_through_links(url)
     person_selector = '.people.result'
     minus_words = %w(marketing sales soft hr assistant development coach recruit)
+    return false unless search_ok?
     @b.elements(css: person_selector).to_a.each_index do |i|
       begin
         item = @b.elements(css: person_selector)[i]
@@ -146,9 +147,8 @@ class Linkedin
         begin
           person_link = URI(item.a(css: 'a.primary-action-button.label').href)
           linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
-        rescue
-          @logger.error("No linkedin_id: #{item.html}")
-          byebug
+        rescue => e
+          process_exception("No linkedin_id: #{item.html}",e)
           next
         end
 
@@ -172,13 +172,18 @@ class Linkedin
           end
         end
       rescue Selenium::WebDriver::Error::UnknownError => e
-        p e.message
-        pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+        process_exception('Selemium',e)
       rescue Watir::Exception::UnknownObjectException => e
-        p e.message
-        pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+        process_exception('Watir', e)
       end
     end
+  end
+
+  def process_exception(message, e)
+    @logger.error e.message
+    trace = e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+    trace.insert 0, message
+    @logger.error trace unless trace.empty?
   end
 
   def wait_page_for_load

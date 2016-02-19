@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords]
 
   # GET /users
   # GET /users.json
@@ -19,12 +19,12 @@ class UsersController < ApplicationController
   # GET /users/new
   def new
     @user = User.new
-    @industries = Industry.all
+    @industries = Industry.order(:name)
   end
 
   # GET /users/1/edit
   def edit
-    @industries = Industry.all
+    @industries = Industry.order(:name)
   end
 
   # POST /users
@@ -48,9 +48,14 @@ class UsersController < ApplicationController
     redirect_to keywords_user_path(@user)
   end
 
+  def multiply_keywords
+    @user.multiply_keywords
+    redirect_to keywords_user_path(@user)
+  end
+
   def keywords
     @keywords = Keyword.where(owner: @user.dir).order(:passed, :position)
-    @industries = Industry.pluck(:name, :index).to_h
+    @industries = Industry.order(:name).pluck(:name, :index).to_h
     @next_key = @user.get_next_key
   end
 
