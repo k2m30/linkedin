@@ -9,7 +9,8 @@ require_relative 'server'
 require 'logger'
 
 class Linkedin
-  attr_accessor :invitations, :pages_visited, :searches_made, :b
+  attr_accessor :invitations, :pages_visited, :searches_made, :b, :third_connections
+  class AlarmException < StandardError; end
 
   def initialize(user, server)
     @wait_period = 1.2..3.2
@@ -80,9 +81,8 @@ class Linkedin
 
       if @b.text.include?('Next >')
         @b.element(text: 'Next >').click
+        raise AlarmException if @b.url == url
       else
-        # byebug
-        # @b.close
         return @server.get_next_url(@user)
       end
 
@@ -155,19 +155,21 @@ class Linkedin
         person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
 
         unless @server.person_exists?(person)
-          next if minus_words.map { |a| position.downcase.include? a }.include? true
-          # button = item.element(css: 'a.primary-action-button')
-          button = item.element(text: 'Connect')
-          if button.exist?
-            button.click if @server.remote?
-            wait
-
-            if @b.url == url
-              @invitations += 1
-            else
+          if @server.remote? and not @third_connections
+            next if minus_words.map { |a| position.downcase.include? a }.include? true
+            # button = item.element(css: 'a.primary-action-button')
+            button = item.element(text: 'Connect')
+            if button.exist?
+              button.click
               wait
-              @b.goto url
-              remove_ads
+
+              if @b.url == url
+                @invitations += 1
+              else
+                wait
+                @b.goto url
+                remove_ads
+              end
             end
           end
         end
@@ -221,6 +223,7 @@ end
 p [users.size, user_name, invitation_limit, start_url]
 users.each do |user|
   crawler = Linkedin.new user, server
+  crawler.third_connections = false
   crawler.wait
   url = start_url || server.get_next_url(user)
   invitation_limit ||= 350
