@@ -10,19 +10,20 @@ class User < ActiveRecord::Base
                                     command_str: "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-udd-profiles --user-data-dir=#{ENV['HOME']}/1chrm/#{users[key]['dir']}") }
   end
 
-  def get_next_url(update=true)
+  def get_next_url(update_to_passed=true, third_connections=false)
+
     keyword = next_keyword
     if keyword.nil?
       multiply_keywords
       keyword = next_keyword
       return nil if keyword.nil?
     end
-    keyword.update(passed: true) if update
-    if self.industry.name == 'All'
-      "https://www.linkedin.com/vsearch/p?keywords=#{keyword.keyword.gsub(' ', '%20')}&title=#{keyword.position.gsub(' ', '%20')}&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691454119532620&orig=FCTD&openFacets=N,G,CC,I&f_N=S"
-    else
-      "https://www.linkedin.com/vsearch/p?keywords=#{keyword.keyword.gsub(' ', '%20')}&title=#{keyword.position.gsub(' ', '%20')}&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691454119532620&orig=FCTD&openFacets=N,G,CC,I&f_N=S&f_I=#{self.industry.index}"
-    end
+    keyword.update(passed: true) if update_to_passed
+
+    connections_letter = third_connections ? 'O' : 'S'
+    url = "https://www.linkedin.com/vsearch/p?keywords=#{keyword.keyword.gsub(' ', '%20')}&title=#{keyword.position.gsub(' ', '%20')}&openAdvancedForm=true&titleScope=C&locationType=I&countryCode=gb&rsid=4120029691454119532620&orig=FCTD&openFacets=N,G,CC,I&f_N=#{connections_letter}"
+    url+= "&f_I=#{self.industry.index}" unless self.industry.name == 'All'
+    url
   end
 
   def get_next_key
