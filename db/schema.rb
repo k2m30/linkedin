@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160213141822) do
+ActiveRecord::Schema.define(version: 20160224072016) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 20160213141822) do
     t.text     "email"
     t.text     "notes"
     t.string   "owner"
-    t.datetime "created_at",  default: '2016-01-30 00:00:31'
+    t.datetime "created_at",  default: '2016-01-30 00:13:24'
     t.string   "passed_to"
   end
 
@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(version: 20160213141822) do
     t.string  "comment"
     t.string  "linkedin_profile"
     t.string  "command_str"
+    t.boolean "paused",           default: false
   end
 
 end

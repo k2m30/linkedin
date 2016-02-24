@@ -129,7 +129,7 @@ class Linkedin
 
   def go_through_links(url)
     person_selector = '.people.result'
-    minus_words = %w(marketing sales soft hr assistant development coach recruit)
+    minus_words = %w(marketing sales soft hr assistant development coach recruit consultant)
     return false unless search_ok?
     @b.elements(css: person_selector).to_a.each_index do |i|
       begin
@@ -226,7 +226,7 @@ users.each do |user|
   crawler.third_connections = false
   crawler.wait
   url = start_url || server.get_next_url(user)
-  invitation_limit ||= 350
+  invitation_limit ||= 500
   while crawler.invitations < invitation_limit && crawler.pages_visited < invitation_limit/4 && crawler.searches_made < 30 && url do
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
