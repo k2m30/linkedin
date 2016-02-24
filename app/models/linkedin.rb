@@ -153,10 +153,10 @@ class Linkedin
         end
 
         person = {name: name, position: position, industry: industry, location: location, linkedin_id: linkedin_id, owner: @user[:dir]}
+        next if minus_words.map { |a| position.downcase.include? a }.include? true
 
         unless @server.person_exists?(person)
           if @server.remote? and not @third_connections
-            next if minus_words.map { |a| position.downcase.include? a }.include? true
             # button = item.element(css: 'a.primary-action-button')
             button = item.element(text: 'Connect')
             if button.exist?
