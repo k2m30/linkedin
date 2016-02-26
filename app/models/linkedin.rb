@@ -10,7 +10,8 @@ require 'logger'
 
 class Linkedin
   attr_accessor :invitations, :pages_visited, :searches_made, :b, :third_connections
-  class AlarmException < StandardError; end
+  class AlarmException < StandardError;
+  end
 
   def initialize(user, server)
     @wait_period = 1.2..3.2
@@ -19,7 +20,12 @@ class Linkedin
     @searches_made = 0
     @user = user
     @server = server
-    @logger = Logger.new('log/linkedin.log')
+    @logger =
+        begin
+          Logger.new('log/linkedin.log')
+        rescue
+          Logger.new('../../log/linkedin.log')
+        end
   end
 
   def login_ok?
@@ -30,16 +36,22 @@ class Linkedin
   def search_ok?
     text = @b.text
     if text.include? 'Due to excessive searching, your people search results are limited'
-      p 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
+      message = 'Due to excessive searching, your people search results are limited to your 1st-degree connections for security reasons. This restriction will be lifted in 24 hours.'
+      p message
+      @server.log(@user, message)
       return false
     end
 
     if text.include? 'We have detected an unusually high number of page views from your account'
-      p 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
+      message = 'We have detected an unusually high number of page views from your account. This may indicate that your account is being used for unauthorized activities that violate LinkedIn\'s User Agreement [see section 8.2] and the privacy of our members.'
+      p message
+      @server.log(@user, message)
       return false
     end
     if text.include? 'reached the commercial use limit on search'
-      p 'You’ve reached the commercial use limit on search.'
+      message = 'You’ve reached the commercial use limit on search.'
+      p message
+      @server.log(@user, message)
       return false
     end
     true
@@ -57,6 +69,37 @@ class Linkedin
     true
   end
 
+  def send_mails
+    @server.log(@user, 'Messaging started')
+    open_browser if @b.nil?
+    return false unless login_ok?
+
+    messaging_hash = load_messages #{:'461658896' => 'Hi there', :'412002969' => "Hello, Michael\nHow are you?"}
+
+    messaging_hash.each do |row|
+      send_message(row['linkedin_id'], row['Msg1 text'])
+      wait
+    end
+    @server.log(@user, "#{messaging_hash.size} messages sent")
+  end
+
+  def load_messages(filename='../../config/users/Paul_Henderson.csv')
+    CSV.parse(File.read(filename), headers: true).by_row!
+  end
+
+  def send_message(id, message)
+    @b.goto "https://www.linkedin.com/messaging/compose?connId=#{id}"
+    @b.alert.ok if @b.alert.exists?
+    wait
+    @b.checkbox(css: 'input#enter-to-send-checkbox').set false
+    wait
+    form = @b.textarea(css: 'textarea#compose-message')
+    form.set message
+    wait
+    send_btn = @b.button(css: '.message-submit')
+    send_btn.click if send_btn.exists?
+  end
+
   def crawl(url)
     open_browser if @b.nil?
     return false unless login_ok?
@@ -66,6 +109,7 @@ class Linkedin
     @searches_made += 1
     @pages_visited += 1
 
+    return false unless login_ok?
     return false unless search_ok?
     return @server.get_next_url(@user) unless enough_search_results?
 
@@ -89,14 +133,18 @@ class Linkedin
     rescue => e
       p e
       p e.message
-      pp e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+      pp e.backtrace[0..4].select { |m| m.include? Dir.pwd }
       url = @b.url
-      unless @b.text.include?('Security Verification') #wait for captcha
+      unless security_verification?
         return url
       end
     end while @b.text.include?('Next >')
 
     false
+  end
+
+  def security_verification?
+    @b.text.include?('Security Verification') || @b.text.include?('Action required')
   end
 
   def wait
@@ -148,7 +196,7 @@ class Linkedin
           person_link = URI(item.a(css: 'a.primary-action-button.label').href)
           linkedin_id = person_link.query.split('&').select { |a| a.include?('key=') }.first.gsub('key=', '').to_i
         rescue => e
-          process_exception("No linkedin_id: #{item.html}",e)
+          process_exception("No linkedin_id: #{item.html}", e)
           next
         end
 
@@ -174,7 +222,7 @@ class Linkedin
           end
         end
       rescue Selenium::WebDriver::Error::UnknownError => e
-        process_exception('Selemium',e)
+        process_exception('Selemium', e)
       rescue Watir::Exception::UnknownObjectException => e
         process_exception('Watir', e)
       end
@@ -183,7 +231,7 @@ class Linkedin
 
   def process_exception(message, e)
     @logger.error e.message
-    trace = e.backtrace[0..4].select{|m| m.include? Dir.pwd}
+    trace = e.backtrace[0..4].select { |m| m.include? Dir.pwd }
     trace.insert 0, message
     @logger.error trace unless trace.empty?
   end
@@ -222,6 +270,7 @@ end
 
 p [users.size, user_name, invitation_limit, start_url]
 users.each do |user|
+  server.log(user, 'started invitation')
   crawler = Linkedin.new user, server
   crawler.third_connections = false
   crawler.wait
@@ -231,7 +280,9 @@ users.each do |user|
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
-  p ['Finished', user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  final_message = ['Finished', user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  p final_message
+  server.log(user, final_message)
   break unless url
   crawler.destroy
 end

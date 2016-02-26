@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords, :log]
 
   # GET /users
   # GET /users.json
@@ -57,6 +57,11 @@ class UsersController < ApplicationController
     @keywords = Keyword.where(owner: @user.dir).order(:passed, :position)
     @industries = Industry.order(:name).pluck(:name, :index).to_h
     @next_key = @user.get_next_key
+  end
+
+  def log
+    logger.warn("#{Time.now.to_formatted_s(:short)} #{@user.dir}: #{params[:message]}")
+    render text: ''
   end
 
   # PATCH/PUT /users/1

@@ -32,6 +32,13 @@ class Server
     url
   end
 
+  def log(user, message)
+    params = {message: message}
+    uri = URI("#{@base_address}/users/#{user[:id]}/log")
+    uri.query = URI.encode_www_form params
+    Net::HTTP.get(uri)
+  end
+
   def person_exists?(person)
     uri = URI("#{@base_address}/person")
     uri.query = URI.encode_www_form person

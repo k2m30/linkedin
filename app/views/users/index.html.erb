@@ -14,7 +14,7 @@
       <tr>
         <td><%= user.dir %></td>
         <td><%= user.industry.name %></td>
-        <td><%= user.comment %></td>
+        <td><%= 'paused' if user.paused? %></td>
         <td><%= link_to 'Keywords', keywords_user_path(user) %></td>
         <td><%= link_to 'Edit', edit_user_path(user) %></td>
         <td></td>

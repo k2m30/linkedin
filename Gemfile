@@ -25,7 +25,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'watir'
 gem 'watir-webdriver'
-gem 'thin'
+gem 'puma'
 gem 'piplapis-ruby'
 gem 'pg'
 gem 'tail'#, path: '~/projects/tail'
