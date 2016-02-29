@@ -23,11 +23,16 @@ class Person < ActiveRecord::Base
 
     people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: industry).limit(n)
     people.each do |p|
-      next if p.name.split(' ').size != 2
+      if p.name.split(' ').size != 2
+        p.update(notes: '{}', email: '')
+        next
+      end
       first, last = p.name.split(' ')
 
-      next if last.include?('.') or first.include?('.')
-      next if last.size == 1 or first.size == 1
+      if last.include?('.') or first.include?('.') or last.size == 1 or first.size == 1
+        p.update(notes: '{}', email: '')
+        next
+      end
 
       person = Pipl::Person.new
       person.add_field Pipl::Name.new(first: first, last: last)
@@ -35,7 +40,7 @@ class Person < ActiveRecord::Base
       response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'
 
       if response.person.nil?
-        p.update(email: '')
+        p.update(notes: '{}', email: '')
         next
       end
       emails = response.person.emails.map(&:address)

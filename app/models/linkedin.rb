@@ -83,7 +83,7 @@ class Linkedin
     @server.log(@user, "#{messaging_hash.size} messages sent")
   end
 
-  def load_messages(filename='../../config/users/Paul_Henderson.csv')
+  def load_messages(filename='../../config/users/Alex_Ye.csv')
     CSV.parse(File.read(filename), headers: true).by_row!
   end
 
@@ -152,7 +152,7 @@ class Linkedin
   end
 
   def destroy
-    @b.close
+    @b.close unless @b.nil?
   end
 
   protected
@@ -280,7 +280,7 @@ users.each do |user|
     url = crawler.crawl(url)
     p [user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited']
   end
-  final_message = ['Finished', user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited']
+  final_message = ['Finished', user[:dir], crawler.searches_made, ' searches made and ', crawler.invitations, 'invitations sent and ', crawler.pages_visited, ' pages visited'].join
   p final_message
   server.log(user, final_message)
   break unless url
