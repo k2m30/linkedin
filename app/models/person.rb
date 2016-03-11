@@ -59,7 +59,7 @@ class Person < ActiveRecord::Base
       processed+=1
     end
 
-    emails_after = Person.where.not(linkedin_id: nil).where(notes: nil, email: [nil,''], industry: industry).size
+    emails_after = Person.where.not(linkedin_id: nil).where(notes: [nil, '{}'], email: [nil,''], industry: industry).size
     [processed, emails_after-emails_before]
   end
 

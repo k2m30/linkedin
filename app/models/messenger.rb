@@ -17,7 +17,6 @@ p [users.size, user_name, messages_limit, start_url]
 users.each do |user|
   mailer = Linkedin.new user, server
   mailer.wait
-
   mailer.send_mails
   mailer.destroy
   break
