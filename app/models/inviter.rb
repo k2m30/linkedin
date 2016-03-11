@@ -9,7 +9,7 @@ if ARGV.empty?
   users = server.users
 else
   users_names = ARGV[0].gsub(' ','').split(',')
-  invitation_limit = ARGV[1].to_i
+  invitation_limit = ARGV[1].to_i unless ARGV[1].nil?
   start_url = ARGV[2]
   users = server.users.select { |u| users_names.include? u[:dir]  }
 end
