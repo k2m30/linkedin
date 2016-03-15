@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       get 'reset_keywords'
       get 'multiply_keywords'
       get 'log'
+      get 'pause'
     end
     resources :keywords, only: [] do
       member do

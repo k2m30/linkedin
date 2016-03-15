@@ -29,6 +29,7 @@ users.each do |user|
   final_message = ['Finished ', user[:dir], ', ', crawler.searches_made, ' searches made and ', crawler.invitations, ' invitations sent and ', crawler.pages_visited, ' pages visited'].join
   p final_message
   server.log(user, final_message)
+  server.pause(user)
   break unless url
   crawler.destroy
 end

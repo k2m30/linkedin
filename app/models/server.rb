@@ -39,6 +39,11 @@ class Server
     Net::HTTP.get(uri)
   end
 
+  def pause(user)
+    uri = URI("#{@base_address}/users/#{user[:id]}/pause")
+    Net::HTTP.get(uri)
+  end
+
   def person_exists?(person)
     uri = URI("#{@base_address}/person")
     uri.query = URI.encode_www_form person

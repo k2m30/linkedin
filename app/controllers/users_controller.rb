@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords, :log]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords, :log, :pause]
 
   # GET /users
   # GET /users.json
@@ -61,6 +61,11 @@ class UsersController < ApplicationController
 
   def log
     logger.warn("#{Time.now.to_formatted_s(:short)} #{@user.dir}: #{params[:message]}")
+    render text: ''
+  end
+
+  def pause
+    @user.update(paused: true)
     render text: ''
   end
 
