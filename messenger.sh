@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-ruby app/models/messenger.rb $1 $2 $3
+cd app/models
+ruby messenger.rb $1 $2 $3
