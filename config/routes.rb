@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       get 'multiply_keywords'
       get 'log'
       get 'pause'
+      get 'unpause'
     end
     resources :keywords, only: [] do
       member do

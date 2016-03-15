@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords, :reset_keywords, :multiply_keywords, :log, :pause]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :keywords,
+                                  :reset_keywords, :multiply_keywords, :log, :pause, :unpause]
 
   # GET /users
   # GET /users.json
@@ -66,7 +67,12 @@ class UsersController < ApplicationController
 
   def pause
     @user.update(paused: true)
-    render text: ''
+    redirect_to users_path
+  end
+
+  def unpause
+    @user.update(paused: false)
+    redirect_to users_path
   end
 
   # PATCH/PUT /users/1

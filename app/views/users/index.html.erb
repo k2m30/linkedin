@@ -19,6 +19,11 @@
         <td><%= link_to 'Edit', edit_user_path(user) %></td>
         <td></td>
         <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <% if user.paused? %>
+          <td><%= link_to 'Unpause', unpause_user_path(user) %></td>
+        <% else  %>
+            <td><%= link_to 'Pause', pause_user_path(user) %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>
