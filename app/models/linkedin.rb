@@ -90,7 +90,10 @@ class Linkedin
 
   def send_message(id, message)
     @b.goto "https://www.linkedin.com/messaging/compose?connId=#{id}"
-    @b.alert.ok if @b.alert.exists?
+    if @b.alert.exists?
+      wait
+      @b.alert.ok
+    end
     wait
     @b.checkbox(css: 'input#enter-to-send-checkbox').set false
     wait

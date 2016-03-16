@@ -8,7 +8,7 @@ if ARGV.empty?
   users = server.users
 else
   user_name = ARGV[0]
-  messages_limit = ARGV[1].to_i
+  messages_limit = ARGV[1].to_i unless ARGV[1].nil?
   start_url = ARGV[2]
   users = server.users.select { |u| u[:dir] == user_name }
 end
