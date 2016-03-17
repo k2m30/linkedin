@@ -7,5 +7,6 @@ sleep 2
 
 echo start puma again..
 nohup puma config.ru -p 3000 > /dev/null 2>&1 &
+bin/delayed_job restart
 
 echo new puma ID: $(ps aux | grep puma | awk '{print $2}')
