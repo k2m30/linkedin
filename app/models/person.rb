@@ -1,6 +1,11 @@
 require 'csv'
 
 class Person < ActiveRecord::Base
+  scope :mined, -> {where.not(notes: nil)}
+  scope :has_emails, -> { where.not(email: [nil, '']) }
+  scope :last_week, -> {where('created_at >= :date', date: DateTime.now.weeks_ago(1))}
+  scope :to_be_mined, -> {where(notes: nil, email: nil).where.not(linkedin_id: nil)}
+
   class NoLinkedinIdException < StandardError;
   end
 
@@ -14,53 +19,6 @@ class Person < ActiveRecord::Base
     person = Person.find_by(linkedin_id: linkedin_id)
     person.update(email: email) unless person.nil?
     person
-  end
-
-  def self.pipl_research(industry='Transportation/Trucking/Railroad', n=100)
-    require 'pipl'
-    processed = 0
-    emails_before = Person.where.not(linkedin_id: nil).where(notes: nil, email: [nil,''], industry: industry).size
-
-    people = Person.where.not(linkedin_id: nil).where(notes: nil, email: nil, industry: industry).limit(n)
-    people.each do |p|
-      if p.name.split(' ').size != 2
-        p.update(notes: '{}', email: '')
-        next
-      end
-      first, last = p.name.split(' ')
-
-      if last.include?('.') or first.include?('.') or last.size == 1 or first.size == 1
-        p.update(notes: '{}', email: '')
-        next
-      end
-
-      person = Pipl::Person.new
-      person.add_field Pipl::Name.new(first: first, last: last)
-      person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
-      response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'
-
-      if response.person.nil?
-        p.update(notes: '{}', email: '')
-        next
-      end
-      emails = response.person.emails.map(&:address)
-      emails.delete_if { |e| e.include? 'facebook' }
-
-      # byebug
-      notes = response.person.to_hash.to_s
-      if emails.size > 1
-        email = emails.shift
-        notes << "\n" << emails.join(' ')
-      else
-        email = emails.first
-      end
-      p.update(email: email, notes: notes)
-      puts [p.name, p.email]
-      processed+=1
-    end
-
-    emails_after = Person.where.not(linkedin_id: nil).where(notes: [nil, '{}'], email: [nil,''], industry: industry).size
-    [processed, emails_after-emails_before]
   end
 
   def self.exists?(params)

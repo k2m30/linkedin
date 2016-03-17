@@ -11,7 +11,7 @@ else
   users_names = ARGV[0].gsub(' ','').split(',')
   invitation_limit = ARGV[1].to_i unless ARGV[1].nil?
   start_url = ARGV[2]
-  if users_names.downcase == 'all'
+  if ARGV[0].downcase == 'all'
     users = server.users
   else
     users = server.users.select { |u| users_names.include? u[:dir]  }

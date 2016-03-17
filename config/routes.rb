@@ -1,6 +1,12 @@
 Rails.application.routes.draw do
 
 
+  resources :pipls, only: [:index] do
+    collection do
+      get 'research'
+    end
+  end
+
   resources :industries
   resources :users do
     member do

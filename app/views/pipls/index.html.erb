@@ -1,0 +1,39 @@
+<hr>
+<table>
+  <thead>
+  <th></th>
+  <th>All records</th>
+  <th>Last week</th>
+  </thead>
+  <tbody>
+  <tr>
+    <td>
+      <p>Total</p>
+      <p>Mined</p>
+      <p>Successful mining </p>
+    </td>
+    <td>
+      <p><%= @all.size %></p>
+      <p><%= @pipl.size %></p>
+      <p><%= @pipl.has_emails.size %></p>
+    </td>
+    <td>
+      <p><%= @all.last_week.size %></p>
+      <p><%= @pipl.last_week.size %></p>
+      <p><%= @pipl.has_emails.last_week.size %></p>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<%= form_tag research_pipls_path, method: :get do %>
+    <p>
+      <%= select_tag :industry, options_from_collection_for_select(Industry.all.order(:name), 'id', 'name', Industry.find_by(name: 'Transportation/Trucking/Railroad').id) %>
+      <%= label_tag :industry %>
+    </p>
+    <p>
+      <%= text_field_tag :number, params[:number] || 1000 %>
+      <%= label_tag :number %>
+    </p>
+    <p><%= submit_tag 'Mine', disabled: @running %></p>
+<% end %>

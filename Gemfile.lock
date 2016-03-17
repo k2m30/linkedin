@@ -52,7 +52,13 @@ GEM
     coffee-script-source (1.10.0)
     commonwatir (4.0.0)
     concurrent-ruby (1.0.1)
+    daemons (1.2.3)
     debug_inspector (0.0.2)
+    delayed_job (4.1.1)
+      activesupport (>= 3.0, < 5.0)
+    delayed_job_active_record (4.1.0)
+      activerecord (>= 3.0, < 5)
+      delayed_job (>= 3.0, < 5)
     erubis (2.7.0)
     execjs (2.6.0)
     ffi (1.9.10)
@@ -121,9 +127,8 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
-    selenium-webdriver (2.52.0)
+    selenium-webdriver (2.53.0)
       childprocess (~> 0.5)
-      multi_json (~> 1.0)
       rubyzip (~> 1.0)
       websocket (~> 1.0)
     spring (1.6.4)
@@ -165,12 +170,15 @@ PLATFORMS
 DEPENDENCIES
   byebug
   coffee-rails (~> 4.1.0)
+  daemons
+  delayed_job
+  delayed_job_active_record
   jbuilder (~> 2.0)
   jquery-rails
   pg
   piplapis-ruby
   puma
-  rails (~> 4.2)
+  rails (= 4.2.6)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   spring
