@@ -56,7 +56,7 @@ class Person < ActiveRecord::Base
   def self.export_to_csv(params)
     size, people = self.search(params)
     if people.nil? || people.empty?
-      people = Person.where.not(linkedin_id: nil)
+      people = Person.where.not(linkedin_id: nil).where(passed_to: nil)
     end
     CSV.generate do |csv|
       csv << column_names
@@ -75,11 +75,15 @@ class Person < ActiveRecord::Base
         name = row['Full Name'] || row['name'] if row['First Name'].nil? and row['Last Name'].nil?
         job_title = row['Job Title'] || ''
         company = row['Company'] || ''
+        linkedin_id = row['linkedin_id'] || ''
         position = job_title + ' at ' + company
-
+        if position == ' at '
+          position = row['position']
+          job_title, company = position.split(' at ')
+        end
         email = row['E-mail Address'] || row['email']
 
-        person = Person.find_by(email: email)
+        person = Person.find_by(linkedin_id: linkedin_id) || Person.find_by(email: email)
         if person.present?
           person.import_update(email, owner_param, passed_to_param)
           next
@@ -92,6 +96,7 @@ class Person < ActiveRecord::Base
         else
           if people.size == 1
             person = people.first
+            next if person.linkedin_id != linkedin_id and linkedin_id != nil
             person.import_update(email, owner_param, passed_to_param)
           else
             people.each do |person|
