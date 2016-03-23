@@ -54,7 +54,8 @@ class Person < ActiveRecord::Base
   end
 
   def self.export_to_csv(params)
-    size, people = self.search(params).where(passed_to: nil)
+    size, people = self.search(params)
+    people = people.where(passed_to: nil)
     if people.nil? || people.empty?
       people = Person.where.not(linkedin_id: nil)
     end
