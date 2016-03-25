@@ -27,7 +27,8 @@ class Miner < ActiveJob::Base
 
       person = Pipl::Person.new
       person.add_field Pipl::Name.new(first: first, last: last)
-      person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
+      person.add_field Pipl::UserID.new content: "#{linkedin_id}@linkedin"
+      # person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin"
       response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'
 
       if response.person.nil?
