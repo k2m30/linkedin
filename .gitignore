@@ -19,4 +19,5 @@ db/*.sqlite3-journal
 config/users
 .keep
 .byebug_history
+.elasticbeanstalk
 db/*.dump

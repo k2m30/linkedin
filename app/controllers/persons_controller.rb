@@ -12,7 +12,12 @@ class PersonsController < ApplicationController
   end
 
   def import
-    Person.import params[:file], params[:owner], params[:passed_to]
+    case params[:type_of_file]
+      when 'linkedin_db'
+        Person.import_linkedin_db params[:file], params[:owner], params[:passed_to]
+      when 'database_export'
+        Person.import_own_database_export params[:file], params[:owner], params[:passed_to]
+    end
     redirect_to root_path, notice: 'Imported'
   end
 

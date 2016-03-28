@@ -67,7 +67,51 @@ class Person < ActiveRecord::Base
     end
   end
 
-  def self.import(file, owner_param, passed_to_param)
+  def self.import_linkedin_db(file, owner_param, passed_to_param)
+    begin
+      # First Name
+      # Last Name
+      # E-mail Address
+      # Company
+      # Job Title
+      CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
+        first_name = row['First Name'] || ''
+        last_name = row['Last Name'] || ''
+        name = first_name + ' ' + last_name
+
+        position = row['Job Title'] || ''
+        company = row['Company'] || ''
+        email = row['E-mail Address']
+
+        person = Person.find_by(email: email)
+        if person.present?
+          person.import_update(email, owner_param, passed_to_param)
+          next
+        end
+
+        people = Person.where(name: name)
+        if people.empty?
+          Person.create(name: name, position: position, email: email)
+        else
+          if people.size == 1
+            person = people.first
+            person.update(email: email)
+          else
+            people.each do |person|
+              if person.position.include?(position) && person.position.include?(company)
+                person.update(name: name, email: email)
+                break
+              end
+            end
+          end
+        end
+      end
+    rescue CSV::MalformedCSVError
+      p ['end']
+    end
+  end
+
+  def self.import_own_database_export(file, owner_param, passed_to_param)
     begin
       CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
         first_name = row['First Name'] || ''

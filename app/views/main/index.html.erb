@@ -1,5 +1,13 @@
 <%= form_tag import_path, multipart: true do %>
     <p>
+      <%= radio_button_tag 'type_of_file', 'linkedin_db', true %>
+      <%= label_tag 'Linkedin DB' %>
+    </p>
+    <p>
+      <%= radio_button_tag 'type_of_file', 'database_export' %>
+      <%= label_tag 'Database export file' %>
+    </p>
+    <p>
       <%= label_tag :file %>
       <%= file_field_tag :file %></p>
     <p>
