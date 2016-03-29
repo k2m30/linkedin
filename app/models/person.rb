@@ -114,43 +114,11 @@ class Person < ActiveRecord::Base
   def self.import_own_database_export(file, owner_param, passed_to_param)
     begin
       CSV.foreach(file.path, headers: true, encoding: 'ISO-8859-1', row_sep: :auto, col_sep: ',') do |row|
-        first_name = row['First Name'] || ''
-        last_name = row['Last Name'] || ''
-        name = first_name + ' ' + last_name
-        name = row['Full Name'] || row['name'] if row['First Name'].nil? and row['Last Name'].nil?
-        job_title = row['Job Title'] || ''
-        company = row['Company'] || ''
-        linkedin_id = row['linkedin_id'] || ''
-        position = job_title + ' at ' + company
-        if position == ' at '
-          position = row['position']
-          job_title, company = position.split(' at ')
-        end
-        email = row['E-mail Address'] || row['email']
-
-        person = Person.find_by(linkedin_id: linkedin_id) || Person.find_by(email: email)
+        linkedin_id = row['linkedin_id']
+        person = Person.find_by(linkedin_id: linkedin_id)
         if person.present?
-          person.import_update(email, owner_param, passed_to_param)
+          person.import_update(owner_param, passed_to_param)
           next
-        end
-
-        people = Person.where('name ilike :q', q: "%#{name}%")
-        if people.empty?
-          Person.create(name: name, position: position, email: email, owner: owner_param, passed_to: passed_to_param)
-          p ['create', name]
-        else
-          if people.size == 1
-            person = people.first
-            next if person.linkedin_id != linkedin_id and linkedin_id != nil
-            person.import_update(email, owner_param, passed_to_param)
-          else
-            people.each do |person|
-              if person.position.include?(job_title) && person.position.include?(company)
-                person.import_update(email, owner_param, passed_to_param)
-                break
-              end
-            end
-          end
         end
       end
     rescue CSV::MalformedCSVError
@@ -159,9 +127,8 @@ class Person < ActiveRecord::Base
 
   end
 
-  def import_update(email_param, owner_param, passed_to_param)
+  def import_update(owner_param, passed_to_param)
     update_hash = {}
-    update_hash.merge!({email: email_param}) if email_param.present? && email.nil?
     update_hash.merge!({owner: owner_param}) if owner_param.present? && owner.nil? && User.owner_exists?(owner_param)
     update_hash.merge!({passed_to: passed_to_param}) if passed_to_param.present? && passed_to.nil?
     update(update_hash) unless update_hash.empty?
