@@ -85,13 +85,13 @@ class Person < ActiveRecord::Base
 
         person = Person.find_by(email: email)
         if person.present?
-          person.import_update(email, owner_param, passed_to_param)
+          person.import_update(owner_param, passed_to_param)
           next
         end
 
         people = Person.where(name: name)
         if people.empty?
-          Person.create(name: name, position: position, email: email)
+          Person.create(name: name, position: position << ' at ' << company, email: email)
         else
           if people.size == 1
             person = people.first
