@@ -6,6 +6,7 @@ class MainController < ApplicationController
   def download_base
     file_name = "db/db#{DateTime.now.to_formatted_s(:number)}.dump"
     `pg_dump -O linkedin > #{file_name}`
+    sleep 10
     send_file(file_name)
   end
 end
