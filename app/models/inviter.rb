@@ -1,6 +1,6 @@
 require_relative 'linkedin'
 
-server = Server.new('http://176.31.71.89:3000')
+server = Server.new('http://srw.mgrwin.com:3000')
 user_name = nil
 invitation_limit = nil
 start_url = nil
