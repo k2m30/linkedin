@@ -1,0 +1,14 @@
+<table>
+  <thead>
+    <th>Industry</th>
+    <th>Emails available</th>
+  </thead>
+  <tbody>
+  <% @stats.each do |s| %>
+    <tr>
+      <td><%= s[0] %></td>
+      <td><%= s[1] %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   end
   root 'main#index'
 
+  get 'stats' => 'persons#stats'
   get 'person' => 'persons#person_exists'
   get 'next_url' => 'persons#get_next_url'
   get 'count' => 'persons#count'

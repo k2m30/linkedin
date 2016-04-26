@@ -11,6 +11,12 @@ class PersonsController < ApplicationController
     end
   end
 
+  def stats
+    @stats = Industry.all.map do |industry|
+      [industry.name, Person.where(industry: industry.name).where.not(email: [nil, '']).size]
+    end.sort_by{|r| r[1]}.reverse
+  end
+
   def import
     case params[:type_of_file]
       when 'linkedin_db'
