@@ -13,7 +13,7 @@ class PersonsController < ApplicationController
 
   def stats
     @stats = Industry.all.map do |industry|
-      [industry.name, Person.where(industry: industry.name).where.not(email: [nil, '']).size]
+      [industry.name, Person.where(industry: industry.name, passed_to: nil).where.not(email: [nil, '']).size]
     end.sort_by{|r| r[1]}.reverse
   end
 
