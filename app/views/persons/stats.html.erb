@@ -2,12 +2,14 @@
   <thead>
     <th>Industry</th>
     <th>Emails available</th>
+    <th>For mining</th>
   </thead>
   <tbody>
   <% @stats.each do |s| %>
     <tr>
       <td><%= s[0] %></td>
       <td><%= s[1] %></td>
+      <td><%= s[2] %></td>
     </tr>
   <% end %>
   </tbody>

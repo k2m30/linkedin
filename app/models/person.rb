@@ -43,7 +43,7 @@ class Person < ActiveRecord::Base
 
   def self.cleanup
     where(linkedin_id: nil).delete_all
-    where.not(email: nil).each do |p|
+    where.not(email: nil).find_each do |p|
       people = where(email: p.email)
       next if people.size <= 1
 
