@@ -45,7 +45,7 @@ class Person < ActiveRecord::Base
     where(linkedin_id: nil).delete_all
     where.not(email: nil).each do |p|
       people = where(email: p.email)
-      next if people.size == 1
+      next if people.size <= 1
 
       people[1..-1].each do |d|
         d.delete
