@@ -42,13 +42,13 @@ class Person < ActiveRecord::Base
   end
 
   def self.cleanup
-    where(linkedin_id: nil).destroy_all
+    where(linkedin_id: nil).delete_all
     where.not(email: nil).each do |p|
       people = where(email: p.email)
       next if people.size == 1
 
       people[1..-1].each do |d|
-        d.destroy
+        d.delete
       end
     end
   end
