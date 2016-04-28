@@ -8,6 +8,10 @@
       <%= label_tag :passed_to %>
     </p>
     <p>
+      <%= text_field_tag :n, params[:n] %>
+      <%= label_tag :number %>
+    </p>
+    <p>
       <%= select_tag :industry, options_from_collection_for_select(Industry.all.order(:name), 'id', 'name', params[:industry]), include_blank: true %>
       <%= label_tag :industry %>
     </p>

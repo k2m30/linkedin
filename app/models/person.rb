@@ -143,7 +143,12 @@ class Person < ActiveRecord::Base
     search_hash.merge!(passed_to: passed_to) unless passed_to.blank?
     search_hash.merge!(owner: owner) unless owner.blank?
 
-    people = Person.where(search_hash)
+    if params[:n].present?
+      people = Person.where(search_hash).limit(params[:n])
+    else
+      people = Person.where(search_hash)
+    end
+
     query = params[:query]
     if query.present?
       people = people.where('name ilike :q or position ilike :q', q: "%#{query}%")
