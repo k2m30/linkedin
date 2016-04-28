@@ -143,10 +143,10 @@ class Person < ActiveRecord::Base
     search_hash.merge!(passed_to: passed_to) unless passed_to.blank?
     search_hash.merge!(owner: owner) unless owner.blank?
 
-    if params[:n].present?
-      people = Person.where(search_hash).limit(params[:n])
+    if params[:n].nil? or params[:n].empty?
+      people = Person.where(search_hash).limit(100)
     else
-      people = Person.where(search_hash)
+      people = Person.where(search_hash).limit(params[:n])
     end
 
     query = params[:query]
