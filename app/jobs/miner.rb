@@ -33,6 +33,7 @@ class Miner < ActiveJob::Base
       person.add_field Pipl::UserID.new content: "#{p.linkedin_id}@linkedin".freeze
       response = Pipl::client.search person: person, api_key: 'pije3hnj534fimtabpzx5fgn'.freeze
 
+      processed+=1
       if response.person.nil?
         p.update(notes: '{}', email: '')
         not_found+=1
@@ -51,7 +52,6 @@ class Miner < ActiveJob::Base
       end
       p.update(email: email, notes: notes)
       puts [p.name, p.email]
-      processed+=1
     end
 
     emails_after = Person.has_emails.size
