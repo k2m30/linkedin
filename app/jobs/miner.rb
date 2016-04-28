@@ -6,7 +6,7 @@ class Miner < ActiveJob::Base
   def perform(params)
     industry = Industry.find(params[:industry]).name || 'Transportation/Trucking/Railroad'
     n = params[:number].to_i || 100
-    Delayed::Worker.logger.warn('Mining started, ' + industry + ', ' + n)
+    Delayed::Worker.logger.warn("Mining started,  #{industry}, #{n})"
 
     processed = 0
     skipped = 0
